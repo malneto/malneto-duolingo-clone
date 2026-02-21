@@ -218,11 +218,6 @@ export const Quiz = ({
         hasActiveSubscription={!!userSubscription?.isActive}
       />
 
-
-
-
-
-
     <div className="flex-1">
     <div className="flex h-full items-center justify-center">
     <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
