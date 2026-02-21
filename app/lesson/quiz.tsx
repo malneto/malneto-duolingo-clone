@@ -225,24 +225,24 @@ export const Quiz = ({
         {title}
       </h1>
 
-                  <div>
+                              <div>
               {challenge.type === "ASSIST" && (
                 <>
                   <QuestionBubble question={challenge.question} />
 
-                  {/* BOTÃO DE ÁUDIO - Web Speech API (sem arquivos, super flexível) */}
+                  {/* BOTÃO DE ÁUDIO - Web Speech API */}
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={() => {
                         const textToSpeak = challenge.question
-                          .replace(/Escute e escolha:?\s*/i, "")
-                          .replace(/Escute:?\s*/i, "")
-                          .trim();
+                          .split(':')
+                          .pop()
+                          ?.trim() || challenge.question.replace(/Escute e escolha:?\s*/i, "").trim();
 
                         if (!textToSpeak) return;
 
                         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                        utterance.lang = "en-US";     // mude para "pt-BR" se quiser português
+                        utterance.lang = "en-US";   // mude para "pt-BR" se quiser português
                         utterance.rate = 0.92;
                         utterance.pitch = 1.05;
                         window.speechSynthesis.cancel();
