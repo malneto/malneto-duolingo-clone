@@ -218,30 +218,67 @@ export const Quiz = ({
         hasActiveSubscription={!!userSubscription?.isActive}
       />
 
-      <div className="flex-1">
-        <div className="flex h-full items-center justify-center">
-          <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
-            <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
-              {title}
-            </h1>
 
-            <div>
-              {challenge.type === "ASSIST" && (
-                <QuestionBubble question={challenge.question} />
-              )}
 
-              <Challenge
-                options={options}
-                onSelect={onSelect}
-                status={status}
-                selectedOption={selectedOption}
-                disabled={pending}
-                type={challenge.type}
-              />
+
+
+
+    <div className="flex-1">
+    <div className="flex h-full items-center justify-center">
+    <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
+      <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
+        {title}
+      </h1>
+
+      <div>
+        {challenge.type === "ASSIST" && (
+          <>
+            <QuestionBubble question={challenge.question} />
+
+            {/* === BOTÃO DE ÁUDIO (Web Speech API) === */}
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => {
+                  const textToSpeak = challenge.question
+                    .replace(/Escute e escolha:?\s*/i, "")
+                    .replace(/Escute:?\s*/i, "")
+                    .trim();
+
+                  if (!textToSpeak) return;
+
+                  const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                  utterance.lang = "en-US";     // ← mude para "pt-BR" ou "es-ES" se quiser
+                  utterance.rate = 0.92;
+                  utterance.pitch = 1.05;
+                  window.speechSynthesis.cancel();
+                  window.speechSynthesis.speak(utterance);
+                }}
+                className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 text-white text-7xl shadow-2xl hover:scale-110 active:scale-95 transition-all"
+                title="Ouvir a frase"
+              >
+                🔊
+              </button>
             </div>
-          </div>
-        </div>
+          </>
+        )}
+
+        <Challenge
+          options={options}
+          onSelect={onSelect}
+          status={status}
+          selectedOption={selectedOption}
+          disabled={pending}
+          type={challenge.type}
+        />
       </div>
+     </div>
+    </div>
+    </div>
+
+
+
+
+
 
       <Footer
         disabled={pending || !selectedOption}
