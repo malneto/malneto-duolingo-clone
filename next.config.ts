@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
       ],
     },
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "flagcdn.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
