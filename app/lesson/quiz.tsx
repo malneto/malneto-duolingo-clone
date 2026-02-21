@@ -230,47 +230,47 @@ export const Quiz = ({
         {title}
       </h1>
 
-      <div>
-        {challenge.type === "ASSIST" && (
-          <>
-            <QuestionBubble question={challenge.question} />
+                  <div>
+              {challenge.type === "ASSIST" && (
+                <>
+                  <QuestionBubble question={challenge.question} />
 
-            {/* === BOTÃO DE ÁUDIO (Web Speech API) === */}
-            <div className="flex justify-center mt-8">
-              <button
-                onClick={() => {
-                  const textToSpeak = challenge.question
-                    .replace(/Escute e escolha:?\s*/i, "")
-                    .replace(/Escute:?\s*/i, "")
-                    .trim();
+                  {/* BOTÃO DE ÁUDIO - Web Speech API (sem arquivos, super flexível) */}
+                  <div className="flex justify-center mt-8">
+                    <button
+                      onClick={() => {
+                        const textToSpeak = challenge.question
+                          .replace(/Escute e escolha:?\s*/i, "")
+                          .replace(/Escute:?\s*/i, "")
+                          .trim();
 
-                  if (!textToSpeak) return;
+                        if (!textToSpeak) return;
 
-                  const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                  utterance.lang = "en-US";     // ← mude para "pt-BR" ou "es-ES" se quiser
-                  utterance.rate = 0.92;
-                  utterance.pitch = 1.05;
-                  window.speechSynthesis.cancel();
-                  window.speechSynthesis.speak(utterance);
-                }}
-                className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 text-white text-7xl shadow-2xl hover:scale-110 active:scale-95 transition-all"
-                title="Ouvir a frase"
-              >
-                🔊
-              </button>
+                        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        utterance.lang = "en-US";     // mude para "pt-BR" se quiser português
+                        utterance.rate = 0.92;
+                        utterance.pitch = 1.05;
+                        window.speechSynthesis.cancel();
+                        window.speechSynthesis.speak(utterance);
+                      }}
+                      className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 text-white text-7xl shadow-2xl hover:scale-110 active:scale-95 transition-all"
+                      title="Ouvir a frase"
+                    >
+                      🔊
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <Challenge
+                options={options}
+                onSelect={onSelect}
+                status={status}
+                selectedOption={selectedOption}
+                disabled={pending}
+                type={challenge.type}
+              />
             </div>
-          </>
-        )}
-
-        <Challenge
-          options={options}
-          onSelect={onSelect}
-          status={status}
-          selectedOption={selectedOption}
-          disabled={pending}
-          type={challenge.type}
-        />
-      </div>
      </div>
     </div>
     </div>
