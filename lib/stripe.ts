@@ -1,6 +1,21 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_API_SECRET_KEY, {
-  apiVersion: "2026-01-28.clover",
-  typescript: true,
-});
+let stripeInstance: Stripe | null = null;
+
+export const getStripe = () => {
+  if (!stripeInstance) {
+    const key = process.env.STRIPE_API_SECRET_KEY;
+
+    if (!key) {
+      // Não quebra o build nem o app (Stripe é opcional por enquanto)
+      throw new Error("❌ Stripe não configurado. Adicione STRIPE_API_SECRET_KEY no .env para ativar corações premium.");
+    }
+
+    stripeInstance = new Stripe(key, {
+      apiVersion: "2026-01-28.clover",
+      typescript: true,
+    });
+  }
+
+  return stripeInstance;
+};

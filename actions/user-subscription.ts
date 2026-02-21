@@ -3,7 +3,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { getUserSubscription } from "@/db/queries";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";        // ← corrigido
 import { absoluteUrl } from "@/lib/utils";
 
 const returnUrl = absoluteUrl("/shop");
@@ -16,9 +16,8 @@ export const createStripeUrl = async () => {
 
   const userSubscription = await getUserSubscription();
 
-  // redirect user to customer portal who already have a subscription
   if (userSubscription && userSubscription.stripeCustomerId) {
-    const stripeSession = await stripe.billingPortal.sessions.create({
+    const stripeSession = await getStripe().billingPortal.sessions.create({
       customer: userSubscription.stripeCustomerId,
       return_url: returnUrl,
     });
@@ -27,7 +26,7 @@ export const createStripeUrl = async () => {
   }
 
   // checkout
-  const stripeSession = await stripe.checkout.sessions.create({
+  const stripeSession = await getStripe().checkout.sessions.create({
     mode: "subscription",
     payment_method_types: ["card"],
     customer_email: user.emailAddresses[0].emailAddress,
@@ -40,16 +39,12 @@ export const createStripeUrl = async () => {
             name: "Lingo Pro",
             description: "Unlimited hearts.",
           },
-          unit_amount: 2000, // $20.00 USD
-          recurring: {
-            interval: "month",
-          },
+          unit_amount: 2000,
+          recurring: { interval: "month" },
         },
       },
     ],
-    metadata: {
-      userId,
-    },
+    metadata: { userId },
     success_url: returnUrl,
     cancel_url: returnUrl,
   });
