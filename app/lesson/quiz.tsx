@@ -210,11 +210,14 @@ export const Quiz = ({
     );
   }
 
-  const title =
-    challenge.type === "ASSIST"
-      ? "Select the correct meaning..."
-      : challenge.question;
+const title =
+  (challenge.type as string) === "TRANSLATE"
+    ? "See the o vídeo and answer"
+    : (challenge.type as string) === "ASSIST"
+    ? "Select the correct meaning"
+    : challenge.question;
 
+      
   return (
     <>
       {incorrectAudio}
