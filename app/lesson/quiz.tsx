@@ -21,6 +21,13 @@ import { Header } from "./header";
 import { QuestionBubble } from "./question-bubble";
 import { ResultCard } from "./result-card";
 
+import { Translate } from "./translate";
+import { FillInBlank } from "./fill-in-blank";
+import { ListenAndType } from "./listen-and-type";
+import { Match } from "./match";
+import { Speak } from "./speak";
+import { Video } from "./video";
+
 type QuizProps = {
   initialPercentage: number;
   initialHearts: number;
@@ -221,28 +228,29 @@ export const Quiz = ({
     <div className="flex-1">
     <div className="flex h-full items-center justify-center">
     <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
-      <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
-        {title}
-      </h1>
+                  <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
+              {title}
+            </h1>
 
-                              <div>
-              {challenge.type === "ASSIST" && (
+            <div>
+              {/* === ASSIST (já existia) === */}
+              {(challenge.type as string) === "ASSIST" && (
                 <>
                   <QuestionBubble question={challenge.question} />
 
-                  {/* BOTÃO DE ÁUDIO - Web Speech API */}
+                  {/* Botão de áudio que já adicionamos antes */}
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={() => {
                         const textToSpeak = challenge.question
-                          .split(':')
-                          .pop()
-                          ?.trim() || challenge.question.replace(/Escute e escolha:?\s*/i, "").trim();
+                          .replace(/Escute e escolha:?\s*/i, "")
+                          .replace(/Escute:?\s*/i, "")
+                          .trim();
 
                         if (!textToSpeak) return;
 
                         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                        utterance.lang = "en-US";   // mude para "pt-BR" se quiser português
+                        utterance.lang = "en-US";
                         utterance.rate = 0.92;
                         utterance.pitch = 1.05;
                         window.speechSynthesis.cancel();
@@ -257,14 +265,84 @@ export const Quiz = ({
                 </>
               )}
 
-              <Challenge
-                options={options}
-                onSelect={onSelect}
-                status={status}
-                selectedOption={selectedOption}
-                disabled={pending}
-                type={challenge.type}
-              />
+              {/* === NOVO: TRANSLATE (digitar a tradução) === */}
+              
+              {(challenge.type as string) === "TRANSLATE" && (
+                <Translate
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                />
+              )}
+
+              {/* === SELECT (o de múltipla escolha normal) === */}
+              {(challenge.type as string) === "SELECT" && (
+                <Challenge
+                  options={options}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                  type={challenge.type}
+                />
+              )}
+
+              {/* FILL_IN_BLANK - completar frase com lacuna */}
+              {(challenge.type as string) === "FILL_IN_BLANK" && (
+                <FillInBlank
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                />
+              )}
+
+              {/* LISTEN_AND_TYPE - ouvir e digitar */}
+              {(challenge.type as string) === "LISTEN_AND_TYPE" && (
+                <ListenAndType
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                />
+              )}
+
+              {/* MATCH - parear colunas */}
+              {(challenge.type as string) === "LISTEN_AND_TYPE" && (
+                <Match
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  disabled={pending}
+                />
+              )}
+
+              {/* SPEAK - falar com microfone */}
+              {(challenge.type as string) === "SPEAK" && (
+                <Speak
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  disabled={pending}
+                />
+              )}
+
+                            {/* VIDEO - assistir vídeo do YouTube */}
+              {(challenge.type as string) === "VIDEO" && (
+                <Video
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                />
+              )}
+
+
             </div>
      </div>
     </div>
