@@ -210,12 +210,26 @@ export const Quiz = ({
     );
   }
 
-const title =
-  (challenge.type as string) === "TRANSLATE"
-    ? "See the o vídeo and answer"
-    : (challenge.type as string) === "ASSIST"
-    ? "Select the correct meaning"
-    : challenge.question;
+const title = 
+  (challenge.type as string) === "ASSIST" 
+    ? "Select the correct answer:"
+    : (challenge.type as string) === "TRANSLATE" 
+    ? "Translate to English:"
+    : (challenge.type as string) === "FILL_IN_BLANK" 
+    ? "Fill in the blank:"
+    : (challenge.type as string) === "LISTEN_AND_TYPE" 
+    ? "Listen and type what you hear:"
+    : (challenge.type as string) === "MATCH" 
+    ? "Match the pairs:"
+    : (challenge.type as string) === "SPEAK" 
+    ? "Speak out loud:"
+    : (challenge.type as string) === "VIDEO" 
+    ? "Watch the video and answer:"
+    : (challenge.type as string) === "SELECT" 
+    ? "Choose the correct answer:"
+    : challenge.question || "Answer the question:";
+
+
 
       
   return (
@@ -236,12 +250,12 @@ const title =
             </h1>
 
             <div>
-              {/* === ASSIST (já existia) === */}
+              {/* === ASSIST === */}
               {(challenge.type as string) === "ASSIST" && (
                 <>
                   <QuestionBubble question={challenge.question} />
 
-                  {/* Botão de áudio que já adicionamos antes */}
+                  {/* Botão de áudio */}
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={() => {
@@ -265,22 +279,20 @@ const title =
                       🔊
                     </button>
                   </div>
+
+                  {/* AS 4 OPÇÕES DE RESPOSTA (IMPORTANTE!) */}
+                  <Challenge
+                    options={options}
+                    onSelect={onSelect}
+                    status={status}
+                    selectedOption={selectedOption}
+                    disabled={pending}
+                    type={challenge.type}
+                  />
                 </>
               )}
 
-              {/* === NOVO: TRANSLATE (digitar a tradução) === */}
-              
-              {(challenge.type as string) === "TRANSLATE" && (
-                <Translate
-                  challenge={challenge}
-                  onSelect={onSelect}
-                  status={status}
-                  selectedOption={selectedOption}
-                  disabled={pending}
-                />
-              )}
-
-              {/* === SELECT (o de múltipla escolha normal) === */}
+              {/* SELECT */}
               {(challenge.type as string) === "SELECT" && (
                 <Challenge
                   options={options}
@@ -292,7 +304,18 @@ const title =
                 />
               )}
 
-              {/* FILL_IN_BLANK - completar frase com lacuna */}
+              {/* TRANSLATE */}
+              {(challenge.type as string) === "TRANSLATE" && (
+                <Translate
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                />
+              )}
+
+              {/* FILL_IN_BLANK */}
               {(challenge.type as string) === "FILL_IN_BLANK" && (
                 <FillInBlank
                   challenge={challenge}
@@ -303,7 +326,7 @@ const title =
                 />
               )}
 
-              {/* LISTEN_AND_TYPE - ouvir e digitar */}
+              {/* LISTEN_AND_TYPE */}
               {(challenge.type as string) === "LISTEN_AND_TYPE" && (
                 <ListenAndType
                   challenge={challenge}
@@ -314,8 +337,8 @@ const title =
                 />
               )}
 
-              {/* MATCH - parear colunas */}
-              {(challenge.type as string) === "LISTEN_AND_TYPE" && (
+              {/* MATCH */}
+              {(challenge.type as string) === "MATCH" && (
                 <Match
                   challenge={challenge}
                   onSelect={onSelect}
@@ -324,7 +347,7 @@ const title =
                 />
               )}
 
-              {/* SPEAK - falar com microfone */}
+              {/* SPEAK */}
               {(challenge.type as string) === "SPEAK" && (
                 <Speak
                   challenge={challenge}
@@ -334,7 +357,7 @@ const title =
                 />
               )}
 
-                            {/* VIDEO - assistir vídeo do YouTube */}
+              {/* VIDEO */}
               {(challenge.type as string) === "VIDEO" && (
                 <Video
                   challenge={challenge}
@@ -344,7 +367,6 @@ const title =
                   disabled={pending}
                 />
               )}
-
 
             </div>
      </div>

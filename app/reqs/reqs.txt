@@ -1,0 +1,62 @@
+REQS
+
+VERCEL - https://vercel.com/marios-projects-34b25168/malneto-duolingo-clone/deployments
+
+
+2026-02-20 - PAREI na criação da página para criação de novas lições dinâmicas. Lições que serão 
+geradas com base no nível do aluno pasta deletada para new-lesson-old 
+
+PERSONAGENS / BONEQUINHOS nas perguntas: 
+
+-> Menino da maçã mágica
+-> O pai do menino
+-> Homem que nasceu para ser pobre
+-> O rei
+
+
+-> route Bulk para importar um "curso completo" gerado por ainda não finalizado. Esta funcionalidade
+irá carregar um lote de desafios e opções de desafio 
+
+-> FALTA CRIAR TYPE CHALLENGE VIDEO para permitir curso de qualquer coisa e interpretações avançadas
+
+-> Criar o ofensivo igual ao Duolingo para viciar Heitorzinho, criar mensagens por e-mail e pushs no celular
+
+-> Criar o curso de Exercícios Físicos. Com Ofensivo!
+
+-> Curso de
+
+-> Estou pensando em alterar a lógica dos cursos. As unidades não serão mais engessadas com uma sequencia
+sabida desde o início. Haverá uma massiva base de lições e desafios que serão dispostos
+para o aluno de forma mais ou menos aleatória. Um exemplo, sempre que um aluno em um dia qualquer
+iniciar uma lição, essa lição terá desafios no nível base do aluno. Lições podem ter nível
+de 1 a 100, por exemplo. Se ele quiser responder uma segunda lição no dia, o nível dos desafios sobe 1 ponto.
+E assim sucessivamente.
+FASE 1 
+  - Um curso e uma unidade apenas
+  - Lições geradas dinamicamente após conclusão da anterior, com base no nível recente do aluno
+  - AGORA UMA MUDANÇA. Os cursos continuam com estrutura estática, mas passa a existir uma tabela 
+  que é um pool de desafios e opções do desafio. A cada lição gerada um conjunto de desafios 
+  do pool é pescado e incluído na unidade/curso. Note que ao mudar um desafio do pool, os desafios
+  dos cursos  originados a partir desse desafio não são modificados. Apenas o desafio do pool é modificado.
+NECESSÁRIO CRIAR ENTÃO A NOVA TABELA de DESAFIO. DEsafios devem ter flags indicadores sobre 
+o assunto que trata e o nível nesse assunto, exemplo: 'listening-1', 'vocabulary-1', 'grammar-1',
+'speak-1', 'astronautics-10', 'math-3'
+
+
+
+Para isso as lições serão formadas dinamicamente a com desafios do banco de desafios e completo
+evolução do nível do aluno. Tenho que mudar a lógica interna do app. Como poderia fazer, sugira
+textualmente.
+
+-> Estou querendo criar um conjunto de cursos. Seriam os Curso 
+Lingo Fitness, Lingo English, Lingo Space, Lingo Science. Cada curso ensina um pouco de 
+inglês, mas exceto o Lingo English o foco é um pouco maior no assunto do curso.
+O aluno que fizer uma lição de cada curso (responder um desafio corretamente) recebe
+o ofensivo os XPs relativo a licao/desafio/curso. Se cumprir para todos os cursos
+recebe o ofensivo de ouro.
+
+
+
+
+-> Todos os tipos duolingo criados. 
+

@@ -7,6 +7,7 @@ import {
   serial,
   text,
   timestamp,
+  date,           // ← adicione esta vírgula e o "date"
 } from "drizzle-orm/pg-core";
 
 import { MAX_HEARTS } from "@/constants";
@@ -15,6 +16,7 @@ export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   imageSrc: text("image_src").notNull(),
+  isPublic: boolean("isPublic").default(true).notNull(),   // ← adicione esta linha
 });
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -73,6 +75,10 @@ export const challenges = pgTable("challenges", {
   type: challengesEnum("type").notNull(),
   question: text("question").notNull(),
   order: integer("order").notNull(),
+
+  // === CAMPOS NOVOS PARA SISTEMA DINÂMICO ===
+  level: integer("level").default(1).notNull(),
+  skill_type: text("skill_type"),
 });
 
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
@@ -153,4 +159,24 @@ export const userSubscription = pgTable("user_subscription", {
   stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
+});
+
+// ==================== NOVAS TABELAS PARA SISTEMA DINÂMICO ====================
+
+export const user_progress = pgTable("user_progress", {
+  userId: text("user_id").primaryKey(),           // Clerk user ID
+  current_level: integer("current_level").default(1).notNull(),
+  daily_lessons_completed: integer("daily_lessons_completed").default(0).notNull(),
+  last_lesson_date: date("last_lesson_date"),
+  hearts: integer("hearts").default(5).notNull(),
+  xp: integer("xp").default(0).notNull(),
+});
+
+export const user_challenge_history = pgTable("user_challenge_history", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user_progress.userId, { onDelete: "cascade" }),
+  challengeId: integer("challenge_id").notNull().references(() => challenges.id, { onDelete: "cascade" }),
+  completedAt: timestamp("completed_at").defaultNow(),
+  correct: boolean("correct").notNull(),
+  xpEarned: integer("xp_earned").default(0),
 });

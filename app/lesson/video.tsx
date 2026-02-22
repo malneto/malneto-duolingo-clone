@@ -40,7 +40,7 @@ export const Video = ({
     <div className="space-y-6 px-4">
       <div className="text-center">
         <p className="text-2xl font-medium text-neutral-700 mb-4">
-          Assista o vídeo e responda abaixo
+          
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export const Video = ({
       )}
 
       <div className="pt-8 text-center text-neutral-500 text-sm">
-        Responda após assistir o vídeo completo
+        
       </div>
     </div>
   );
