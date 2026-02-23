@@ -106,132 +106,77 @@ const [challenges] = useState(sortedChallenges);
   };
 
   const onContinue = () => {
-    if (!selectedOption) return;
+  
+  // Lógica padrão para os outros tipos (SELECT, ASSIST, MATCH, SPEAK, VIDEO)
+  if (!selectedOption && status === "none") return;
 
-    if (status === "wrong") {
-      setStatus("none");
-      setSelectedOption(undefined);
-      return;
-    }
-
-    if (status === "correct") {
-      onNext();
-      setStatus("none");
-      setSelectedOption(undefined);
-      return;
-    }
-
-    const correctOption = options.find((option) => option.correct);
-
-    if (!correctOption) return;
-
-    if (correctOption.id === selectedOption) {
-      startTransition(() => {
-        upsertChallengeProgress(challenge.id)
-          .then((response) => {
-            if (response?.error === "hearts") {
-              openHeartsModal();
-              return;
-            }
-
-            void correctControls.play();
-            setStatus("correct");
-            setPercentage((prev) => prev + 100 / challenges.length);
-
-            // This is a practice
-            if (initialPercentage === 100) {
-              setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
-            }
-          })
-          .catch(() => toast.error("Something went wrong. Please try again."));
-      });
-    } else {
-      startTransition(() => {
-        reduceHearts(challenge.id)
-          .then((response) => {
-            if (response?.error === "hearts") {
-              openHeartsModal();
-              return;
-            }
-
-            void incorrectControls.play();
-            setStatus("wrong");
-
-            if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
-          })
-          .catch(() => toast.error("Something went wrong. Please try again."));
-      });
-    }
-  };
-
-  if (!challenge) {
-    return (
-      <>
-        {finishAudio}
-        <Confetti
-          recycle={false}
-          numberOfPieces={500}
-          tweenDuration={10_000}
-          width={width}
-          height={height}
-        />
-        <div className="mx-auto flex h-full max-w-lg flex-col items-center justify-center gap-y-4 text-center lg:gap-y-8">
-          <Image
-            src="/finish.svg"
-            alt="Finish"
-            className="hidden lg:block"
-            height={100}
-            width={100}
-          />
-
-          <Image
-            src="/finish.svg"
-            alt="Finish"
-            className="block lg:hidden"
-            height={100}
-            width={100}
-          />
-
-          <h1 className="text-lg font-bold text-neutral-700 lg:text-3xl">
-            Great job! <br /> You&apos;ve completed the lesson.
-          </h1>
-
-          <div className="flex w-full items-center gap-x-4">
-            <ResultCard variant="points" value={challenges.length * 10} />
-            <ResultCard
-              variant="hearts"
-              value={userSubscription?.isActive ? Infinity : hearts}
-            />
-          </div>
-        </div>
-
-        <Footer
-          lessonId={lessonId}
-          status="completed"
-          onCheck={() => router.push("/learn")}
-        />
-      </>
-    );
+  if (status === "wrong") {
+    setStatus("none");
+    setSelectedOption(undefined);
+    return;
   }
+
+  if (status === "correct") {
+    onNext();
+    setStatus("none");
+    setSelectedOption(undefined);
+    return;
+  }
+
+  const correctOption = options.find((option) => option.correct);
+
+  if (!correctOption) return;
+
+  if (correctOption.id === selectedOption) {
+    startTransition(() => {
+      upsertChallengeProgress(challenge.id)
+        .then((response) => {
+          if (response?.error === "hearts") {
+            openHeartsModal();
+            return;
+          }
+
+          void correctControls.play();
+          setStatus("correct");
+          setPercentage((prev) => prev + 100 / challenges.length);
+
+          if (initialPercentage === 100) {
+            setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
+          }
+        })
+        .catch(() => toast.error("Something went wrong. Please try again."));
+    });
+  } else {
+    startTransition(() => {
+      reduceHearts(challenge.id)
+        .then((response) => {
+          if (response?.error === "hearts") {
+            openHeartsModal();
+            return;
+          }
+
+          void incorrectControls.play();
+          setStatus("wrong");
+
+          if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
+        })
+        .catch(() => toast.error("Something went wrong. Please try again."));
+    });
+  }
+};
 
 const title = 
   (challenge.type as string) === "ASSIST" 
     ? "Select the correct answer:"
-    : (challenge.type as string) === "TRANSLATE" 
-    ? "Translate to English:"
-    : (challenge.type as string) === "FILL_IN_BLANK" 
-    ? "Fill in the blank:"
+    : (challenge.type as string) === "VIDEO" 
+    ? "Watch the video and answer:"
+    : (challenge.type as string) === "SPEAK" 
+    ? "Speak out loud:"
     : (challenge.type as string) === "LISTEN_AND_TYPE" 
     ? "Listen and type what you hear:"
     : (challenge.type as string) === "MATCH" 
     ? "Match the pairs:"
-    : (challenge.type as string) === "SPEAK" 
-    ? "Speak out loud:"
-    : (challenge.type as string) === "VIDEO" 
-    ? "Watch the video and answer:"
-    : (challenge.type as string) === "SELECT" 
-    ? "Choose the correct answer:"
-    : challenge.question || "Answer the question:";
+    : challenge.question || "Choose the correct answer:";
 
 
 
@@ -333,12 +278,13 @@ const title =
               {/* LISTEN_AND_TYPE */}
               {(challenge.type as string) === "LISTEN_AND_TYPE" && (
                 <ListenAndType
-                  challenge={challenge}
-                  onSelect={onSelect}
-                  status={status}
-                  selectedOption={selectedOption}
-                  disabled={pending}
-                />
+                key={challenge.id}          // ← ADICIONE ESTA LINHA
+                challenge={challenge}
+                onSelect={onSelect}
+                status={status}
+                selectedOption={selectedOption}
+                disabled={pending}
+              />
               )}
 
               {/* MATCH */}

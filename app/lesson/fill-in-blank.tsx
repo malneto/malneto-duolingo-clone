@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type ChallengeOption = {
   id: number;
@@ -11,7 +11,7 @@ type ChallengeOption = {
 type Challenge = {
   id: number;
   type: string;
-  question: string;        // ex: "I ___ the boy of the magic apple."
+  question: string;
   challengeOptions: ChallengeOption[];
 };
 
@@ -34,10 +34,21 @@ export const FillInBlank = ({
 
   const correctOption = challenge.challengeOptions.find((opt) => opt.correct);
 
-  const handleCheck = () => {
-    if (!correctOption) return;
+  // Validação inteligente (ignora maiúsculas, espaços extras)
+  const normalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
+  };
 
-    const isCorrect = input.trim().toLowerCase() === correctOption.text.toLowerCase();
+  const handleSubmit = () => {
+    if (!correctOption || !input.trim() || status !== "none") return;
+
+    const normalizedInput = normalizeText(input);
+    const normalizedCorrect = normalizeText(correctOption.text);
+
+    const isCorrect = normalizedInput === normalizedCorrect;
 
     if (isCorrect) {
       onSelect(correctOption.id);
@@ -45,6 +56,13 @@ export const FillInBlank = ({
       onSelect(-1);
     }
   };
+
+  // Limpa o campo quando muda de desafio
+  useEffect(() => {
+    if (status === "none") {
+      setInput("");
+    }
+  }, [status]);
 
   return (
     <div className="space-y-8 px-4">
@@ -59,19 +77,11 @@ export const FillInBlank = ({
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleCheck()}
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         placeholder="Digite a palavra que falta..."
-        className="w-full rounded-2xl border-2 border-neutral-200 bg-white px-6 py-5 text-2xl focus:border-green-500 focus:outline-none"
+        className="w-full rounded-2xl border-2 border-neutral-200 bg-white px-6 py-5 text-2xl focus:border-green-500 focus:outline-none disabled:bg-neutral-100"
         disabled={disabled || status !== "none"}
       />
-
-      <button
-        onClick={handleCheck}
-        disabled={!input.trim() || disabled || status !== "none"}
-        className="w-full rounded-2xl bg-green-500 py-4 text-xl font-bold text-white disabled:bg-neutral-300"
-      >
-        Verificar
-      </button>
     </div>
   );
 };

@@ -31,33 +31,38 @@ export const Translate = ({
   disabled,
 }: TranslateProps) => {
   const [input, setInput] = useState("");
-  const [hasAnswered, setHasAnswered] = useState(false);
 
   const correctOption = challenge.challengeOptions.find((opt) => opt.correct);
 
-  const handleCheck = () => {
-    if (!correctOption || !input.trim()) return;
+  // Validação inteligente (ignora maiúsculas, espaços extras e pontuação comum)
+  const normalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s]/g, "")   // remove pontuação
+      .replace(/\s+/g, " ");     // remove espaços múltiplos
+  };
 
-    const isCorrect = input.trim().toLowerCase() === correctOption.text.toLowerCase();
+  const handleSubmit = () => {
+    if (!correctOption || !input.trim() || status !== "none") return;
 
-    setHasAnswered(true);
+    const normalizedInput = normalizeText(input);
+    const normalizedCorrect = normalizeText(correctOption.text);
+
+    const isCorrect = normalizedInput === normalizedCorrect;
 
     if (isCorrect) {
       onSelect(correctOption.id);
     } else {
-      onSelect(-1); // força status "wrong"
+      onSelect(-1); // errado
     }
   };
 
-  // Limpa o input quando muda de desafio
-  const resetInput = () => {
-    setInput("");
-    setHasAnswered(false);
-  };
- 
-  // Reset quando o status muda (próximo desafio)
+  // Limpa o campo quando muda de desafio
   useEffect(() => {
-    if (status === "none") resetInput();
+    if (status === "none") {
+      setInput("");
+    }
   }, [status]);
 
   return (
@@ -66,26 +71,18 @@ export const Translate = ({
         <p className="text-2xl font-medium text-neutral-700">
           {challenge.question}
         </p>
-        <p className="text-neutral-500 mt-3">Digite a tradução em inglês</p>
+        <p className="text-neutral-500 mt-3">Type the translation in English</p>
       </div>
 
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleCheck()}
-        placeholder="Digite aqui..."
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+        placeholder="Type here..."
         className="w-full rounded-2xl border-2 border-neutral-200 bg-white px-6 py-5 text-2xl focus:border-green-500 focus:outline-none disabled:bg-neutral-100"
-        disabled={disabled || status !== "none" || hasAnswered}
+        disabled={disabled || status !== "none"}
       />
-
-      <button
-        onClick={handleCheck}
-        disabled={!input.trim() || disabled || status !== "none" || hasAnswered}
-        className="w-full rounded-2xl bg-green-500 py-4 text-xl font-bold text-white disabled:bg-neutral-300 transition-all"
-      >
-        Verificar
-      </button>
     </div>
   );
 };

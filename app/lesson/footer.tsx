@@ -29,6 +29,7 @@ export const Footer = ({
       )}
     >
       <div className="mx-auto flex h-full max-w-[1140px] items-center justify-between px-6 lg:px-10">
+        {/* Mensagem quando acerta */}
         {status === "correct" && (
           <div className="flex items-center text-base font-bold text-green-500 lg:text-2xl">
             <CheckCircle className="mr-4 h-6 w-6 lg:h-10 lg:w-10" />
@@ -36,34 +37,26 @@ export const Footer = ({
           </div>
         )}
 
+        {/* Mensagem quando erra */}
         {status === "wrong" && (
           <div className="flex items-center text-base font-bold text-rose-500 lg:text-2xl">
             <XCircle className="mr-4 h-6 w-6 lg:h-10 lg:w-10" />
-            Try again.
+            Don&apos;t worry, this challenge will return later.
           </div>
         )}
 
-        {status === "completed" && (
-          <Button
-            variant="default"
-            size={isMobile ? "sm" : "lg"}
-            onClick={() => (window.location.href = `/lesson/${lessonId}`)}
-          >
-            Practice again
-          </Button>
-        )}
-
+        {/* Botão Next / Check */}
         <Button
           disabled={disabled}
           aria-disabled={disabled}
           className="ml-auto"
           onClick={onCheck}
           size={isMobile ? "sm" : "lg"}
-          variant={status === "wrong" ? "danger" : "secondary"}
+          variant={status === "wrong" ? "danger" : "default"}
         >
           {status === "none" && "Check"}
           {status === "correct" && "Next"}
-          {status === "wrong" && "Retry"}
+          {status === "wrong" && "Next"}          {/* ← Sempre "Next" quando erra */}
           {status === "completed" && "Continue"}
         </Button>
       </div>
