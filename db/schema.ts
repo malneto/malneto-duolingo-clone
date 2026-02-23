@@ -101,6 +101,8 @@ export const challengeOptions = pgTable("challenge_options", {
   correct: boolean("correct").notNull(),
   imageSrc: text("image_src"),
   audioSrc: text("audio_src"),
+  // Novo campo para MATCH
+  matchGroup: integer("match_group"),
 });
 
 export const challengeOptionsRelations = relations(

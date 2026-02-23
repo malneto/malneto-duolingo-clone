@@ -76,7 +76,11 @@ export const Quiz = ({
   const [percentage, setPercentage] = useState(() => {
     return initialPercentage === 100 ? 0 : initialPercentage;
   });
-  const [challenges] = useState(initialLessonChallenges);
+  
+  // Ordena os desafios pela coluna "order" do banco
+const sortedChallenges = [...initialLessonChallenges].sort((a, b) => a.order - b.order);
+const [challenges] = useState(sortedChallenges);
+  
   const [activeIndex, setActiveIndex] = useState(() => {
     const uncompletedIndex = challenges.findIndex(
       (challenge) => !challenge.completed

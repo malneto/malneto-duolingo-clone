@@ -31,8 +31,16 @@ export const Speak = ({ challenge, onSelect, status, disabled }: SpeakProps) => 
 
   const correctOption = challenge.challengeOptions.find((opt) => opt.correct);
 
+  const normalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .trim()
+      .replace(/\s+/g, " ");
+  };
+
   const startListening = () => {
-    const SpeechRecognitionAPI =
+    const SpeechRecognitionAPI = 
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -43,15 +51,17 @@ export const Speak = ({ challenge, onSelect, status, disabled }: SpeakProps) => 
     const recog = new SpeechRecognitionAPI();
     recog.continuous = false;
     recog.interimResults = false;
-    recog.lang = "en-US";   // mude para "pt-BR" se quiser português
+    recog.lang = "en-US";
 
     recog.onresult = (event: any) => {
       const spokenText = event.results[0][0].transcript.trim();
       setTranscript(spokenText);
 
       if (correctOption) {
-        const isCorrect = spokenText.toLowerCase() === correctOption.text.toLowerCase();
-        if (isCorrect) {
+        const normalizedSpoken = normalizeText(spokenText);
+        const normalizedCorrect = normalizeText(correctOption.text);
+
+        if (normalizedSpoken === normalizedCorrect) {
           onSelect(correctOption.id);
         } else {
           onSelect(-1);
@@ -62,7 +72,7 @@ export const Speak = ({ challenge, onSelect, status, disabled }: SpeakProps) => 
 
     recog.onerror = () => {
       setIsListening(false);
-      alert("Não consegui ouvir. Tente novamente.");
+      alert("Não consegui ouvir claramente. Tente novamente.");
     };
 
     recog.onend = () => setIsListening(false);

@@ -1,20 +1,26 @@
 "use client";
 
+import { Challenge } from "./challenge";
+
 type ChallengeOption = {
   id: number;
   text: string;
   correct: boolean;
+  imageSrc: string | null;
+  audioSrc: string | null;
+  challengeId: number;
+  matchGroup: number | null;   // ← adicionado para compatibilidade
 };
 
-type Challenge = {
+type ChallengeType = {
   id: number;
   type: string;
-  question: string; // Aqui vai o link completo do YouTube
+  question: string;
   challengeOptions: ChallengeOption[];
 };
 
 type VideoProps = {
-  challenge: Challenge;
+  challenge: ChallengeType;
   onSelect: (id: number) => void;
   status: "correct" | "wrong" | "none";
   selectedOption?: number;
@@ -37,10 +43,10 @@ export const Video = ({
   const videoId = getYouTubeId(challenge.question || "");
 
   return (
-    <div className="space-y-6 px-4">
+    <div className="space-y-8 px-4">
       <div className="text-center">
         <p className="text-2xl font-medium text-neutral-700 mb-4">
-          
+          Assista o vídeo e responda abaixo
         </p>
       </div>
 
@@ -62,9 +68,15 @@ export const Video = ({
         </p>
       )}
 
-      <div className="pt-8 text-center text-neutral-500 text-sm">
-        
-      </div>
+      {/* Opções de resposta abaixo do vídeo */}
+      <Challenge
+        options={challenge.challengeOptions}
+        onSelect={onSelect}
+        status={status}
+        selectedOption={selectedOption}
+        disabled={disabled}
+        type={challenge.type}
+      />
     </div>
   );
 };

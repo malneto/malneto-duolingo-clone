@@ -9,7 +9,7 @@ type ChallengeProps = {
   status: "correct" | "wrong" | "none";
   selectedOption?: number;
   disabled?: boolean;
-  type: (typeof challenges.$inferSelect)["type"];
+  type: string;
 };
 
 export const Challenge = ({

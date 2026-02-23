@@ -17,15 +17,18 @@ const LessonPage = async () => {
 
   if (!lesson || !userProgress) return redirect("/learn");
 
+  // FORÇA a ordenação correta por "order" (isso resolve o problema)
+  const sortedChallenges = [...lesson.challenges].sort((a, b) => a.order - b.order);
+
   const initialPercentage =
-    (lesson.challenges.filter((challenge) => challenge.completed).length /
-      lesson.challenges.length) *
+    (sortedChallenges.filter((challenge) => challenge.completed).length /
+      sortedChallenges.length) *
     100;
 
   return (
     <Quiz
       initialLessonId={lesson.id}
-      initialLessonChallenges={lesson.challenges}
+      initialLessonChallenges={sortedChallenges}   // ← USANDO LISTA ORDENADA
       initialHearts={userProgress.hearts}
       initialPercentage={initialPercentage}
       userSubscription={userSubscription}

@@ -7,7 +7,7 @@ type ChallengeOption = {
   id: number;
   text: string;
   correct: boolean;
-  imageSrc?: string | null;
+  matchGroup: number | null;
 };
 
 type Challenge = {
@@ -28,33 +28,50 @@ export const Match = ({ challenge, onSelect, status, disabled }: MatchProps) => 
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   const [pairs, setPairs] = useState<Record<number, number>>({});
 
-  const leftItems = challenge.challengeOptions.filter((_, i) => i % 2 === 0);
-  const rightItems = challenge.challengeOptions.filter((_, i) => i % 2 === 1);
+  const leftItems = challenge.challengeOptions.filter((opt) => !opt.correct);
+  const rightItems = challenge.challengeOptions.filter((opt) => opt.correct);
 
-  const handleSelect = (id: number, side: "left" | "right") => {
+  const handleLeftClick = (id: number) => {
     if (disabled || status !== "none") return;
 
-    if (side === "left") {
-      setSelectedLeft(id);
-    } else if (selectedLeft !== null) {
-      setPairs((prev) => ({ ...prev, [selectedLeft]: id }));
+    if (selectedLeft === id) {
       setSelectedLeft(null);
+    } else if (!pairs[id]) {
+      setSelectedLeft(id);
+    }
+  };
 
-      // Verifica se completou todos os pares
-      if (Object.keys({ ...pairs, [selectedLeft]: id }).length === leftItems.length) {
-        const allCorrect = Object.entries({ ...pairs, [selectedLeft]: id }).every(
-          ([leftId, rightId]) => {
-            const leftOpt = challenge.challengeOptions.find((o) => o.id === Number(leftId));
-            const rightOpt = challenge.challengeOptions.find((o) => o.id === rightId);
-            return leftOpt && rightOpt && leftOpt.correct === rightOpt.correct;
-          }
-        );
+  const handleRightClick = (id: number) => {
+    if (disabled || status !== "none" || selectedLeft === null) return;
 
-        if (allCorrect) {
-          onSelect(challenge.challengeOptions[0].id); // qualquer id correto
-        } else {
-          onSelect(-1);
+    const existingLeft = Object.keys(pairs).find((key) => pairs[Number(key)] === id);
+
+    if (existingLeft) {
+      setPairs((prev) => {
+        const newPairs = { ...prev };
+        delete newPairs[Number(existingLeft)];
+        return newPairs;
+      });
+      return;
+    }
+
+    setPairs((prev) => ({ ...prev, [selectedLeft]: id }));
+    setSelectedLeft(null);
+
+    // Se completou todos os pares, avalia automaticamente
+    if (Object.keys({ ...pairs, [selectedLeft]: id }).length === leftItems.length) {
+      const allCorrect = Object.entries({ ...pairs, [selectedLeft]: id }).every(
+        ([leftId, rightId]) => {
+          const leftOpt = challenge.challengeOptions.find((o) => o.id === Number(leftId));
+          const rightOpt = challenge.challengeOptions.find((o) => o.id === rightId);
+          return leftOpt && rightOpt && leftOpt.matchGroup === rightOpt.matchGroup;
         }
+      );
+
+      if (allCorrect) {
+        onSelect(challenge.challengeOptions[0].id);
+      } else {
+        onSelect(-1);
       }
     }
   };
@@ -62,24 +79,21 @@ export const Match = ({ challenge, onSelect, status, disabled }: MatchProps) => 
   return (
     <div className="space-y-8">
       <p className="text-center text-xl font-medium text-neutral-700">
-        {challenge.question || "Relacione as colunas"}
+        {challenge.question || "Match the pairs"}
       </p>
 
       <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-        {/* Coluna esquerda */}
+        {/* Coluna Esquerda */}
         <div className="space-y-3">
           {leftItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => handleSelect(item.id, "left")}
+              onClick={() => handleLeftClick(item.id)}
               disabled={disabled || status !== "none" || !!pairs[item.id]}
               className={cn(
                 "w-full rounded-2xl border-2 px-6 py-4 text-left text-lg transition-all",
-                selectedLeft === item.id
-                  ? "border-green-500 bg-green-50"
-                  : pairs[item.id]
-                  ? "border-green-500 bg-green-50"
-                  : "border-neutral-200 hover:border-neutral-400"
+                selectedLeft === item.id && "border-green-500 bg-green-50",
+                pairs[item.id] && "border-green-500 bg-green-50 opacity-75"
               )}
             >
               {item.text}
@@ -87,18 +101,16 @@ export const Match = ({ challenge, onSelect, status, disabled }: MatchProps) => 
           ))}
         </div>
 
-        {/* Coluna direita */}
+        {/* Coluna Direita */}
         <div className="space-y-3">
           {rightItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => handleSelect(item.id, "right")}
+              onClick={() => handleRightClick(item.id)}
               disabled={disabled || status !== "none"}
               className={cn(
                 "w-full rounded-2xl border-2 px-6 py-4 text-left text-lg transition-all",
-                Object.values(pairs).includes(item.id)
-                  ? "border-green-500 bg-green-50"
-                  : "border-neutral-200 hover:border-neutral-400"
+                Object.values(pairs).includes(item.id) && "border-green-500 bg-green-50 opacity-75"
               )}
             >
               {item.text}

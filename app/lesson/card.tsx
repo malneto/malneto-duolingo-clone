@@ -3,7 +3,6 @@ import { useCallback } from "react";
 import Image from "next/image";
 import { useAudio, useKey } from "react-use";
 
-import { challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 type CardProps = {
@@ -16,7 +15,7 @@ type CardProps = {
   onClick: () => void;
   status?: "correct" | "wrong" | "none";
   disabled?: boolean;
-  type: (typeof challenges.$inferSelect)["type"];
+  type: string;
 };
 
 export const Card = ({
@@ -30,16 +29,21 @@ export const Card = ({
   disabled,
   type,
 }: CardProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  
-  const [audio, _, controls] = useAudio({ src: audioSrc || "" });
+  // Só cria o áudio se realmente existir áudio
+  const [audio, _, controls] = useAudio({
+    src: audioSrc || "",
+  });
 
   const handleClick = useCallback(() => {
     if (disabled) return;
 
-    void controls.play();
+    // Só toca áudio se existir
+    if (audioSrc && controls) {
+      void controls.play();
+    }
+
     onClick();
-  }, [disabled, onClick, controls]);
+  }, [disabled, onClick, controls, audioSrc]);
 
   useKey(shortcut, handleClick, {}, [handleClick]);
 
@@ -59,7 +63,9 @@ export const Card = ({
         type === "ASSIST" && "w-full lg:p-3"
       )}
     >
-      {audio}
+      {/* Renderiza o elemento <audio> apenas se existir áudio */}
+      {audioSrc && audio}
+
       {imageSrc && (
         <div className="relative mb-4 aspect-square max-h-[80px] w-full lg:max-h-[150px]">
           <Image src={imageSrc} fill alt={text} />
