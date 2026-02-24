@@ -34,13 +34,12 @@ export const Translate = ({
 
   const correctOption = challenge.challengeOptions.find((opt) => opt.correct);
 
-  // Validação inteligente (ignora maiúsculas, espaços extras e pontuação comum)
   const normalizeText = (text: string) => {
     return text
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s]/g, "")   // remove pontuação
-      .replace(/\s+/g, " ");     // remove espaços múltiplos
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, " ");
   };
 
   const handleSubmit = () => {
@@ -54,9 +53,18 @@ export const Translate = ({
     if (isCorrect) {
       onSelect(correctOption.id);
     } else {
-      onSelect(-1); // errado
+      onSelect(-1);
     }
   };
+
+  // Habilita o botão CHECK assim que digitar
+  useEffect(() => {
+    if (input.trim().length > 0) {
+      onSelect(999);
+    } else {
+      onSelect(-1);
+    }
+  }, [input, onSelect]);
 
   // Limpa o campo quando muda de desafio
   useEffect(() => {

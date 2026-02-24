@@ -95,6 +95,42 @@ const [challenges] = useState(sortedChallenges);
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
 
+
+  // === PROTEÇÃO FORTE: Evita qualquer renderização quando a lição termina ===
+  if (!challenge) {
+    return (
+      <>
+        {finishAudio}
+        <Confetti
+          recycle={false}
+          numberOfPieces={800}
+          tweenDuration={8000}
+          width={width}
+          height={height}
+        />
+        <div className="mx-auto flex h-full max-w-lg flex-col items-center justify-center gap-y-4 text-center lg:gap-y-8">
+          <Image src="/finish.svg" alt="Finish" height={120} width={120} />
+          <h1 className="text-2xl font-bold text-neutral-700 lg:text-4xl">
+            Great job! <br /> You completed the lesson!
+          </h1>
+          <div className="flex w-full items-center gap-x-4">
+            <ResultCard variant="points" value={challenges.length * 10} />
+            <ResultCard
+              variant="hearts"
+              value={userSubscription?.isActive ? Infinity : hearts}
+            />
+          </div>
+        </div>
+
+        <Footer
+          lessonId={lessonId}
+          status="completed"
+          onCheck={() => router.push("/learn")}
+        />
+      </>
+    );
+  }
+
   const onNext = () => {
     setActiveIndex((current) => current + 1);
   };
