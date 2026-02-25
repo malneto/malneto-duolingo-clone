@@ -57,7 +57,8 @@ export const lessons = pgTable("lessons", {
     .references(() => units.id, {
       onDelete: "cascade",
     })
-    .notNull(),
+    .notNull(),  
+  subject: text("subject"), // ← NOVA COLUNA
   order: integer("order").notNull(),
 });
 

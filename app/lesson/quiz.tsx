@@ -225,6 +225,7 @@ const title =
     <>
       {incorrectAudio}
       {correctAudio}
+
       <Header
         hearts={hearts}
         percentage={percentage}

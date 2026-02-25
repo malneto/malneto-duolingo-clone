@@ -8,10 +8,17 @@ type UnitProps = {
   order: number;
   title: string;
   description: string;
-  icon?: string;                    // ← NOVO: Ícone da unidade
-  lessons: (typeof lessons.$inferSelect & {
+  icon?: string;
+
+  lessons: Array<{
+    id: number;
+    title: string;
+    order: number;
     completed: boolean;
-  })[];
+    subject?: string | null;
+    unitId?: number;
+  }>;
+
   activeLesson:
     | (typeof lessons.$inferSelect & {
         unit: typeof units.$inferSelect;
@@ -23,7 +30,7 @@ type UnitProps = {
 export const Unit = ({
   title,
   description,
-  icon = "⭐",                       // ← Valor padrão (estrela)
+  icon = "⭐",
   lessons,
   activeLesson,
   activeLessonPercentage,
@@ -33,7 +40,7 @@ export const Unit = ({
       <UnitBanner 
         title={title} 
         description={description}
-        icon={icon || "⭐"}     // ← Adicione esta linha
+        icon={icon} 
       />
 
       <div className="relative flex flex-col items-center">
@@ -50,6 +57,7 @@ export const Unit = ({
               current={isCurrent}
               locked={isLocked}
               percentage={activeLessonPercentage}
+              subject={lesson.subject || "DEFAULT"}
             />
           );
         })}

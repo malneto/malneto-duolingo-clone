@@ -36,6 +36,7 @@ export const getUserProgress = cache(async () => {
   return data;
 });
 
+
 export const getUnits = cache(async () => {
   const { userId } = await auth();
   const userProgress = await getUserProgress();
@@ -47,6 +48,12 @@ export const getUnits = cache(async () => {
     orderBy: (units, { asc }) => [asc(units.order)],
     with: {
       lessons: {
+        columns: {
+          id: true,
+          title: true,
+          order: true,
+          subject: true,           // ← Adicionado aqui
+        },
         orderBy: (lessons, { asc }) => [asc(lessons.order)],
         with: {
           challenges: {

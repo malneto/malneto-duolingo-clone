@@ -26,7 +26,7 @@ export const ResultCard = ({ value, variant }: ResultCardProps) => {
           variant === "hearts" && "bg-rose-500"
         )}
       >
-        {variant === "hearts" ? "Corações" : "Total XP"}
+        {variant === "hearts" ? "Coração" : "Total XP"}
       </div>
 
       <div

@@ -1,12 +1,11 @@
 "use client";
 
-import { Check, Crown, Star } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 import "react-circular-progressbar/dist/styles.css";
 
@@ -17,6 +16,7 @@ type LessonButtonProps = {
   locked?: boolean;
   current?: boolean;
   percentage: number;
+  subject?: string;
 };
 
 export const LessonButton = ({
@@ -26,12 +26,12 @@ export const LessonButton = ({
   locked,
   current,
   percentage,
+  subject = "DEFAULT",
 }: LessonButtonProps) => {
   const cycleLength = 8;
   const cycleIndex = index % cycleLength;
 
   let indentationLevel;
-
   if (cycleIndex <= 2) indentationLevel = cycleIndex;
   else if (cycleIndex <= 4) indentationLevel = 4 - cycleIndex;
   else if (cycleIndex <= 6) indentationLevel = 4 - cycleIndex;
@@ -43,15 +43,27 @@ export const LessonButton = ({
   const isLast = index === totalCount;
   const isCompleted = !current && !locked;
 
-  const Icon = isCompleted ? Check : isLast ? Crown : Star;
+  // Mapeamento de ícones por assunto
+  const subjectIcons: Record<string, string> = {
+    'ROBOTICS': '🤖',
+    'MATH': '🔢',
+    'SCIENCE': '🧪',
+    'ENGLISH': '🇬🇧',
+    'PORTUGUESE': '🇧🇷',
+    'ASTRONOMY': '🌌',
+    'FINANCE INFLUENCE': '💰',
+    'DEFAULT': '⭐',
+  };
 
-  const href = isCompleted ? `/lesson/${id}` : "/lesson";
+  const icon = subjectIcons[subject] || subjectIcons.DEFAULT;
+
+  const href = isCompleted || current ? `/lesson/${id}` : "#";
 
   return (
     <Link
       href={href}
-      aria-disabled={locked}
-      style={{ pointerEvents: locked ? "none" : "auto" }}
+      aria-disabled={locked && !current}
+      style={{ pointerEvents: locked && !current ? "none" : "auto" }}
     >
       <div
         className="relative"
@@ -61,58 +73,50 @@ export const LessonButton = ({
         }}
       >
         {current ? (
-          <div className="relative h-[102px] w-[102px]">
-            <div className="absolute -top-6 left-2.5 z-10 animate-bounce rounded-xl border-2 bg-white px-3 py-2.5 font-bold uppercase tracking-wide text-green-500">
-              {MESSAGES.start}
-              <div
-                className="absolute -bottom-2 left-1/2 h-0 w-0 -translate-x-1/2 transform border-x-8 border-t-8 border-x-transparent"
-                aria-hidden
-              />
+          // Lição atual - com bolha "INICIAR"
+          <div className="relative h-[110px] w-[110px]">
+            <div className="absolute -top-9 left-1/2 z-20 -translate-x-1/2 rounded-2xl bg-white px-6 py-3 font-bold text-green-600 shadow-xl border border-green-200">
+              INICIAR
+              <div className="absolute -bottom-2 left-1/2 h-0 w-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-white" />
             </div>
+
             <CircularProgressbarWithChildren
               value={Number.isNaN(percentage) ? 0 : percentage}
               styles={{
-                path: {
-                  stroke: "#4ade80",
-                },
-                trail: {
-                  stroke: "#e5e7eb",
-                },
+                path: { stroke: "#22c55e", strokeWidth: 8 },
+                trail: { stroke: "#e5e7eb", strokeWidth: 8 },
               }}
             >
               <Button
                 size="rounded"
-                variant={locked ? "locked" : "secondary"}
-                className="h-[70px] w-[70px] border-b-8"
+                variant="secondary"
+                className="h-[78px] w-[78px] border-b-8 border-green-600 bg-white shadow-xl hover:bg-green-50 active:scale-95 transition-all text-5xl"
               >
-                <Icon
-                  className={cn(
-                    "h-10 w-10",
-                    locked
-                      ? "fill-neutral-400 stroke-neutral-400 text-neutral-400"
-                      : "fill-primary-foreground text-primary-foreground",
-                    isCompleted && "fill-none stroke-[4]"
-                  )}
-                />
+                {icon}
               </Button>
             </CircularProgressbarWithChildren>
           </div>
         ) : (
-          <Button
-            size="rounded"
-            variant={locked ? "locked" : "secondary"}
-            className="h-[70px] w-[70px] border-b-8"
-          >
-            <Icon
+          // Lições normais (concluídas ou bloqueadas)
+          <div className="relative h-[70px] w-[70px]">
+            <Button
+              size="rounded"
+              variant={locked ? "locked" : "secondary"}
               className={cn(
-                "h-10 w-10",
-                locked
-                  ? "fill-neutral-400 stroke-neutral-400 text-neutral-400"
-                  : "fill-primary-foreground text-primary-foreground",
-                isCompleted && "fill-none stroke-[4]"
+                "h-[70px] w-[70px] border-b-8 text-4xl transition-all",
+                isCompleted && "bg-green-500 border-green-600 text-white"
               )}
-            />
-          </Button>
+            >
+              {icon}
+            </Button>
+
+            {/* Check pequeno no canto superior direito - apenas em lições concluídas */}
+            {isCompleted && (
+              <div className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 shadow-md border border-white">
+                <Check className="h-5 w-5 text-green-600" strokeWidth={4} />
+              </div>
+            )}
+          </div>
         )}
       </div>
     </Link>

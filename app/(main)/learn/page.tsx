@@ -6,6 +6,8 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
+import { LessonTopBar } from "@/components/lesson-top-bar";   // ← Import adicionado
+
 import {
   getCourseProgress,
   getLessonPercentage,
@@ -44,46 +46,53 @@ const LearnPage = async () => {
   const isPro = !!userSubscription?.isActive;
 
   return (
-    <div className="flex flex-row-reverse gap-[48px] px-6">
-      <StickyWrapper>
-        <UserProgress
-          activeCourse={userProgress.activeCourse}
-          hearts={userProgress.hearts}
-          points={userProgress.points}
-          hasActiveSubscription={isPro}
-        />
+    <>
+      {/* BARRA FIXA NO TOPO - Aparece só nesta tela (igual Duolingo) */}
+      <LessonTopBar
+        hearts={userProgress.hearts}
+        points={userProgress.points}
+        currentStreak={userProgress.currentStreak || 0}
+        hasActiveSubscription={isPro}
+      />
 
-        {/* OFENSIVO - STREAK (fica fixo na lateral, como no Duolingo) */}
-        <div className="mt-6">
-          <Streak 
-            currentStreak={userProgress.currentStreak || 0}
-            longestStreak={userProgress.longestStreak || 0}
+      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16">   {/* pt-16 para dar espaço da barra fixa */}
+        <StickyWrapper>
+          <UserProgress
+            activeCourse={userProgress.activeCourse}
+            hearts={userProgress.hearts}
+            points={userProgress.points}
+            hasActiveSubscription={isPro}
           />
-        </div>
 
-        {!isPro && <Promo />}
-        <Quests points={userProgress.points} />
-      </StickyWrapper>
-
-
-
-      <FeedWrapper>
-        <Header title={userProgress.activeCourse.title} />
-        {units.map((unit) => (
-          <div key={unit.id} className="mb-10">
-            <Unit
-              id={unit.id}
-              order={unit.order}
-              description={unit.description || "Sem descrição disponível"}
-              title={unit.title}
-              lessons={unit.lessons}
-              activeLesson={courseProgress.activeLesson}
-              activeLessonPercentage={lessonPercentage}
+          <div className="mt-6">
+            <Streak 
+              currentStreak={userProgress.currentStreak || 0}
+              longestStreak={userProgress.longestStreak || 0}
             />
           </div>
-        ))}
-      </FeedWrapper>
-    </div>
+
+          {!isPro && <Promo />}
+          <Quests points={userProgress.points} />
+        </StickyWrapper>
+
+        <FeedWrapper>
+          <Header title={userProgress.activeCourse.title} />
+          {units.map((unit) => (
+            <div key={unit.id} className="mb-10">
+              <Unit
+                id={unit.id}
+                order={unit.order}
+                description={unit.description || "Sem descrição disponível"}
+                title={unit.title}
+                lessons={unit.lessons}
+                activeLesson={courseProgress.activeLesson}
+                activeLessonPercentage={lessonPercentage}
+              />
+            </div>
+          ))}
+        </FeedWrapper>
+      </div>
+    </>
   );
 };
 

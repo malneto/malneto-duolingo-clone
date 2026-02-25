@@ -73,7 +73,12 @@ export const MESSAGES = {
   praticeLessonUse: "Use lições de treinamento para ganhar coração e XP. Você não perde nada por praticar!",
   iUndertand: "Tudo bem!",
 
+  //Confeti
   greatJob: "Excelente!",
   youCompletedTheLesson: "Lição concluída!",
+
+  //
+  textHaerts: "Corações",
+  totalXP: "XP",
   
 } as const;

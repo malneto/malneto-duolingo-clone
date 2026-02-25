@@ -1,6 +1,11 @@
 REQS
 
 VERCEL - https://vercel.com/marios-projects-34b25168/malneto-duolingo-clone/deployments
+SERVIDOR - https://malneto-duolingo-clone.vercel.app/
+SERVIDOR - https://vercel.com/marios-projects-34b25168/malneto-duolingo-clone/deployments
+GITHUB - https://github.com/malneto/malneto-duolingo-clone
+NEON - https://console.neon.tech/app/projects/bold-flower-66258712/branches/br-wispy-shadow-ai9h47ry/tables?database=neondb
+
 
 25-02-2026 PAREI CRIANDO O CONCEITO DE SEÇÃO PARA PERMITIR PULAR
 
