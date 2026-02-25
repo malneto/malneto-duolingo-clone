@@ -6,7 +6,8 @@ import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
-import { LessonTopBar } from "@/components/lesson-top-bar";   // ← Import adicionado
+import { LessonTopBar } from "@/components/lesson-top-bar";
+import { BottomNavigation } from "@/components/bottom-navigation";   // ← Import adicionado
 
 import {
   getCourseProgress,
@@ -47,7 +48,7 @@ const LearnPage = async () => {
 
   return (
     <>
-      {/* BARRA FIXA NO TOPO - Aparece só nesta tela (igual Duolingo) */}
+      {/* Barra fixa no topo */}
       <LessonTopBar
         hearts={userProgress.hearts}
         points={userProgress.points}
@@ -55,7 +56,8 @@ const LearnPage = async () => {
         hasActiveSubscription={isPro}
       />
 
-      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16">   {/* pt-16 para dar espaço da barra fixa */}
+      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16 pb-20 lg:pb-0">   {/* ← pb-20 adicionado */}
+        
         <StickyWrapper>
           <UserProgress
             activeCourse={userProgress.activeCourse}
@@ -92,6 +94,9 @@ const LearnPage = async () => {
           ))}
         </FeedWrapper>
       </div>
+
+      {/* BARRA INFERIOR FIXA - Só aparece no celular (igual Duolingo) */}
+      <BottomNavigation />
     </>
   );
 };
