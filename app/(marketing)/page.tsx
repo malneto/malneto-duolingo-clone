@@ -9,9 +9,9 @@ import {
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 import { Button } from "@/components/ui/button";
+import { MESSAGES } from "@/constants/messages";
 
 export default function MarketingPage() {
   return (
@@ -22,7 +22,7 @@ export default function MarketingPage() {
 
       <div className="flex flex-col items-center gap-y-8">
         <h1 className="max-w-[480px] text-center text-xl font-bold text-neutral-600 lg:text-3xl">
-          Learn, practice and master new languages with Lingo.
+          {MESSAGES.marketingTitle}
         </h1>
 
         <div className="flex w-full max-w-[330px] flex-col items-center gap-y-3">
@@ -34,20 +34,20 @@ export default function MarketingPage() {
             <SignedOut>
               <SignUpButton mode="modal">
                 <Button size="lg" variant="secondary" className="w-full">
-                  Get Started
+                  {MESSAGES.getStarted}
                 </Button>
               </SignUpButton>
 
               <SignInButton mode="modal">
                 <Button size="lg" variant="primaryOutline" className="w-full">
-                  I already have an account
+                  {MESSAGES.alreadyHaveAccount}
                 </Button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
               <Button size="lg" variant="secondary" className="w-full" asChild>
-                <Link href="/learn">Continue Learning</Link>
+                <Link href="/learn">{MESSAGES.continueLearning}</Link>
               </Button>
             </SignedIn>
           </ClerkLoaded>

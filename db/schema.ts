@@ -24,15 +24,21 @@ export const coursesRelations = relations(courses, ({ many }) => ({
   units: many(units),
 }));
 
+export const sections = pgTable("sections", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").references(() => courses.id, { onDelete: "cascade" }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const units = pgTable("units", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(), // Unit 1
-  description: text("description").notNull(), // Learn the basics of spanish
-  courseId: integer("course_id")
-    .references(() => courses.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
+  courseId: integer("course_id").references(() => courses.id, { onDelete: "cascade" }).notNull(),
+  sectionId: integer("section_id").references(() => sections.id, { onDelete: "cascade" }), // ← Novo
+  title: text("title").notNull(),
+  description: text("description"),
   order: integer("order").notNull(),
 });
 

@@ -2,6 +2,7 @@ REQS
 
 VERCEL - https://vercel.com/marios-projects-34b25168/malneto-duolingo-clone/deployments
 
+25-02-2026 PAREI CRIANDO O CONCEITO DE SEÇÃO PARA PERMITIR PULAR
 
 2026-02-23 -  PASSAR TODOS OS FONTES PRA IA NÃO MERDAR TUDO.
 PAREI NO BUG CARVERNOSO DO LISTEN AND TYPE! Quanse desistindo desse type.

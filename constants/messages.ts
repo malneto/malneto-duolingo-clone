@@ -5,6 +5,12 @@ export const MESSAGES = {
   appName: "HeitorLingo",
   coursesTitle: "Meus Cursos Disponíveis!",
 
+  // Marketing Page (Página inicial)
+  marketingTitle: "Aprenda, pratique e domine novos idiomas com o Lingo.",
+  getStarted: "Começar agora",
+  alreadyHaveAccount: "Já tenho uma conta",
+  continueLearning: "Continuar aprendendo",
+
   // Menu Lateral (Sidebar)
   learn: "APRENDER",
   leaderboard: "CLASSIFICAÇÃO",
@@ -52,10 +58,10 @@ export const MESSAGES = {
   start: "Começar!",
 
   // Exit Modal
-  exitModalTitle: "Espere, não vá!",
-  exitModalDescription: "Você está prestes a sair da lição. Tem certeza?",
+  exitModalTitle: "Espera, não vá!",
+  exitModalDescription: "Falta bem pouquinho pra acabar a lição. Tem certeza?",
   keepLearning: "CONTINUAR APRENDENDO",
-  endSession: "ENCERRAR SESSÃO",
+  endSession: "Sair",
 
 
   // Leaderboard

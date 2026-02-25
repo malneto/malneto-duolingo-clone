@@ -35,7 +35,7 @@ export const ExitModal = () => {
             <DialogTitle className="text-3xl font-bold text-neutral-800 mb-2 text-center">
               {MESSAGES.exitModalTitle}
             </DialogTitle>
-            <DialogDescription className="text-lg text-neutral-600">
+            <DialogDescription className="text-lg text-neutral-600 text-center">
               {MESSAGES.exitModalDescription}
             </DialogDescription>
           </DialogHeader>
