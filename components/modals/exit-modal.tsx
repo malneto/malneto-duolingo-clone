@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,50 +26,41 @@ export const ExitModal = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <div className="mb-5 flex w-full items-center justify-center">
-            <Image
-              src="/mascot_sad.svg"
-              alt="Mascot Sad"
-              height={80}
-              width={80}
-            />
-          </div>
+      <DialogContent className="max-w-md p-0">
+        <div className="flex flex-col items-center px-8 pt-10 pb-8 text-center">
+          {/* Carinha triste amarela - igual Duolingo */}
+          <div className="mb-6 text-8xl">😟</div>
 
-          <DialogTitle className="text-center text-2xl font-bold">
-            Wait, don&apos;t go!
-          </DialogTitle>
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold text-neutral-800 mb-2 text-center">
+              {MESSAGES.exitModalTitle}
+            </DialogTitle>
+            <DialogDescription className="text-lg text-neutral-600">
+              {MESSAGES.exitModalDescription}
+            </DialogDescription>
+          </DialogHeader>
 
-          <DialogDescription className="text-center text-base">
-            You&apos;re about to leave the lesson. Are you sure?
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogFooter className="mb-4">
-          <div className="flex w-full flex-col gap-y-4">
+          <div className="mt-10 w-full space-y-4">
+            {/* Botão azul grande - Continuar aprendendo */}
             <Button
-              variant="primary"
-              className="w-full"
-              size="lg"
               onClick={close}
+              className="w-full h-14 text-lg font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-2xl"
             >
-              Keep learning
+              {MESSAGES.keepLearning}
             </Button>
 
-            <Button
-              variant="dangerOutline"
-              className="w-full"
-              size="lg"
+            {/* Link vermelho - Encerrar sessão */}
+            <button
               onClick={() => {
                 close();
                 router.push("/learn");
               }}
+              className="text-rose-500 font-bold text-lg hover:text-rose-600 transition-colors py-2"
             >
-              End session
-            </Button>
+              {MESSAGES.endSession}
+            </button>
           </div>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

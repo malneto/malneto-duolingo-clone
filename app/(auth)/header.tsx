@@ -16,6 +16,7 @@ import Banner from "@/components/banner";
 import { Button } from "@/components/ui/button";
 import { links } from "@/config";
 import { cn } from "@/lib/utils";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 export const Header = () => {
   const { isSignedIn } = useAuth();
@@ -36,7 +37,7 @@ export const Header = () => {
             <Image src="/mascot.svg" alt="Mascot" height={40} width={40} />
 
             <h1 className="text-2xl font-extrabold tracking-wide text-green-600">
-              Lingo
+              {MESSAGES.appName}
             </h1>
           </Link>
 

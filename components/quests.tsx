@@ -4,18 +4,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { QUESTS } from "@/constants";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 type QuestsProps = { points: number };
 
 export const Quests = ({ points }: QuestsProps) => {
   return (
     <div className="space-y-4 rounded-xl border-2 p-4">
-      <div className="flex w-full items-center justify-between space-y-2">
-        <h3 className="text-lg font-bold">Quests</h3>
+      <div className="flex w-full items-center justify-between">
+        <h3 className="text-lg font-bold">{MESSAGES.questsTitleTsx}</h3>
 
         <Link href="/quests">
           <Button size="sm" variant="primaryOutline">
-            View all
+            {MESSAGES.viewAll}
           </Button>
         </Link>
       </div>

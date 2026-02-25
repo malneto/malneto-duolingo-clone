@@ -2,7 +2,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useKey, useMedia } from "react-use";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { MESSAGES } from "@/constants/messages";
 
 type FooterProps = {
   onCheck: () => void;
@@ -21,43 +21,30 @@ export const Footer = ({
   const isMobile = useMedia("(max-width: 1024px)");
 
   return (
-    <footer
-      className={cn(
-        "h-[100px] border-t-2 lg:h-[140px]",
-        status === "correct" && "border-transparent bg-green-100",
-        status === "wrong" && "border-transparent bg-rose-100"
-      )}
-    >
-      <div className="mx-auto flex h-full max-w-[1140px] items-center justify-between px-6 lg:px-10">
-        {/* Mensagem quando acerta */}
+    <footer className="fixed bottom-0 left-0 right-0 border-t-2 bg-white py-4 lg:py-6 z-50">
+      <div className="mx-auto max-w-[1140px] px-6 lg:px-10">
+        
         {status === "correct" && (
-          <div className="flex items-center text-base font-bold text-green-500 lg:text-2xl">
-            <CheckCircle className="mr-4 h-6 w-6 lg:h-10 lg:w-10" />
-            Nicely done!
+          <div className="mb-4 flex items-center gap-3 text-green-600 font-bold text-xl">
+            <CheckCircle className="h-8 w-8" />
+            {MESSAGES.wellDone}
           </div>
         )}
 
-        {/* Mensagem quando erra */}
         {status === "wrong" && (
-          <div className="flex items-center text-base font-bold text-rose-500 lg:text-2xl">
-            <XCircle className="mr-4 h-6 w-6 lg:h-10 lg:w-10" />
-            Don&apos;t worry, this challenge will return later.
+          <div className="mb-4 flex items-center gap-3 text-rose-600 font-bold text-xl">
+            <XCircle className="h-8 w-8" />
+            {MESSAGES.tryAgain}
           </div>
         )}
 
-        {/* Botão Next / Check */}
         <Button
-          disabled={disabled}
-          aria-disabled={disabled}
-          className="ml-auto"
           onClick={onCheck}
-          size={isMobile ? "sm" : "lg"}
-          variant={status === "wrong" ? "danger" : "default"}
+          disabled={disabled}
+          className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg transition-all active:scale-[0.97] bg-green-500 hover:bg-green-600 text-white"
         >
-          {status === "none" && "Check"}
-          {status === "correct" && "Next"}
-          {status === "wrong" && "Next"}          {/* ← Sempre "Next" quando erra */}
-          {status === "completed" && "Continue"}
+          {status === "none" && MESSAGES.verify}
+          {(status === "correct" || status === "wrong" || status === "completed") && MESSAGES.continue}
         </Button>
       </div>
     </footer>

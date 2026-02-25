@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
 type SidebarProps = {
   className?: string;
@@ -30,14 +31,26 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </Link>
 
       <div className="flex flex-1 flex-col gap-y-2">
-        <SidebarItem label="Learn" href="/learn" iconSrc="/learn.svg" />
-        <SidebarItem
-          label="Leaderboard"
-          href="/leaderboard"
-          iconSrc="/leaderboard.svg"
+        <SidebarItem 
+          label={MESSAGES.learn} 
+          href="/learn" 
+          iconSrc="/learn.svg" 
         />
-        <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
-        <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
+        <SidebarItem 
+          label={MESSAGES.leaderboard} 
+          href="/leaderboard" 
+          iconSrc="/leaderboard.svg" 
+        />
+        <SidebarItem 
+          label={MESSAGES.quests} 
+          href="/quests" 
+          iconSrc="/quests.svg" 
+        />
+        <SidebarItem 
+          label={MESSAGES.shop} 
+          href="/shop" 
+          iconSrc="/shop.svg" 
+        />
       </div>
 
       <div className="p-4">

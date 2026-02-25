@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { StickyWrapper } from "@/components/sticky-wrapper";
@@ -39,10 +40,10 @@ const QuestsPage = async () => {
           <Image src="/quests.svg" alt="Quests" height={90} width={90} />
 
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
-            Quests
+            {MESSAGES.questsTitle}
           </h1>
           <p className="mb-6 text-center text-lg text-muted-foreground">
-            Complete quests by earning points.
+            {MESSAGES.questsSubtitle}
           </p>
 
           <ul className="w-full">

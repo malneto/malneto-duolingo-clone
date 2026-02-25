@@ -1,30 +1,32 @@
-export const POINTS_TO_REFILL = 10;
+// constants.ts
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 
+export const POINTS_TO_REFILL = 10;
 export const MAX_HEARTS = 10;
 
 export const QUESTS = [
   {
-    title: "Earn 20 XP",
+    title: MESSAGES.questEarn20,   // "Ganhe 20 XP"
     value: 20,
   },
   {
-    title: "Earn 50 XP",
+    title: MESSAGES.questEarn50,
     value: 50,
   },
   {
-    title: "Earn 100 XP",
+    title: MESSAGES.questEarn100,
     value: 100,
   },
   {
-    title: "Earn 250 XP",
+    title: MESSAGES.questEarn250,
     value: 250,
   },
   {
-    title: "Earn 500 XP",
+    title: MESSAGES.questEarn500,
     value: 500,
   },
   {
-    title: "Earn 1000 XP",
+    title: MESSAGES.questEarn1000,
     value: 1000,
   },
 ];
