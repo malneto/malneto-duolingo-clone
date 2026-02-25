@@ -67,5 +67,10 @@ export const MESSAGES = {
   // Leaderboard
   leaderboardTitle: "Classificação",
   leaderboardDescription: "Veja onde você está entre outros alunos da comunidade.",
+
+  // Practice Lessons
+  practiceLesson: "Practice lesson",
+  praticeLessonUse: "Use practice lessons to regain hearts and points. You cannot loose hearts or points in practice lessons.",
+  iUndertand: "I understand",
   
 } as const;

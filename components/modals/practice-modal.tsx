@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
 import {
   Dialog,
   DialogContent,
@@ -32,11 +33,11 @@ export const PracticeModal = () => {
           </div>
 
           <DialogTitle className="text-center text-2xl font-bold">
-            Practice lesson
+            {MESSAGES.practiceLesson} Practice lesson
           </DialogTitle>
 
           <DialogDescription className="text-center text-base">
-            Use practice lessons to regain hearts and points. You cannot loose
+            {MESSAGES.praticeLessonUse} Use practice lessons to regain hearts and points. You cannot loose
             hearts or points in practice lessons.
           </DialogDescription>
         </DialogHeader>
@@ -49,7 +50,7 @@ export const PracticeModal = () => {
               size="lg"
               onClick={close}
             >
-              I understand
+              {MESSAGES.iUndertand} I understand
             </Button>
           </div>
         </DialogFooter>
