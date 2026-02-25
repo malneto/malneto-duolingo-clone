@@ -138,14 +138,20 @@ export const challengeProgressRelations = relations(
 
 export const userProgress = pgTable("user_progress", {
   userId: text("user_id").primaryKey(),
-  userName: text("user_name").notNull().default("User"),
-  userImageSrc: text("user_image_src").notNull().default("/mascot.svg"),
-  activeCourseId: integer("active_course_id").references(() => courses.id, {
-    onDelete: "cascade",
-  }),
-  hearts: integer("hearts").notNull().default(MAX_HEARTS),
+  userName: text("user_name").notNull(),
+  userImageSrc: text("user_image_src").notNull(),
+  activeCourseId: integer("active_course_id").references(() => courses.id, { onDelete: "cascade" }),
+  hearts: integer("hearts").notNull().default(5),
   points: integer("points").notNull().default(0),
-});
+
+  // === NOVAS COLUNAS PARA O STREAK ===
+  currentStreak: integer("current_streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
+  lastActivityDate: date("last_activity_date"),
+
+}, (table) => ({
+  // índices se quiser (opcional)
+}));
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
   activeCourse: one(courses, {

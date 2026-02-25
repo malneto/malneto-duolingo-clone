@@ -27,13 +27,15 @@ const LessonPage = async () => {
 
   return (
     <Quiz
+      key={lesson.id}
       initialLessonId={lesson.id}
-      initialLessonChallenges={sortedChallenges}   // ← USANDO LISTA ORDENADA
+      initialLessonChallenges={sortedChallenges}
       initialHearts={userProgress.hearts}
       initialPercentage={initialPercentage}
       userSubscription={userSubscription}
+      currentStreak={userProgress.currentStreak || 0}   // ← ADICIONE ESTA LINHA
     />
-  );
+      );
 };
 
 export default LessonPage;

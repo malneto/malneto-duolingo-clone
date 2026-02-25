@@ -36,6 +36,36 @@ export const upsertChallengeProgress = async (challengeId: number) => {
 
   const isPractice = !!existingChallengeProgress;
 
+  // ====================== SISTEMA DE OFENSIVO (STREAK) ======================
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Converte para formato YYYY-MM-DD (obrigatório para coluna DATE)
+  const todayStr = today.toISOString().split('T')[0];
+
+  const lastActivity = currentUserProgress.lastActivityDate 
+    ? new Date(currentUserProgress.lastActivityDate) 
+    : null;
+
+  let newStreak = 1;
+
+  if (lastActivity) {
+    const diffTime = Math.abs(today.getTime() - lastActivity.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      newStreak = (currentUserProgress.currentStreak || 0) + 1;
+    } else if (diffDays > 1) {
+      newStreak = 1; // Perdeu o streak
+    }
+  }
+
+  const newLongestStreak = Math.max(
+    currentUserProgress.longestStreak || 0,
+    newStreak
+  );
+  // =====================================================================
+
   if (
     currentUserProgress.hearts === 0 &&
     !isPractice &&
@@ -46,9 +76,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   if (isPractice) {
     await db
       .update(challengeProgress)
-      .set({
-        completed: true,
-      })
+      .set({ completed: true })
       .where(eq(challengeProgress.id, existingChallengeProgress.id));
 
     await db
@@ -56,6 +84,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       .set({
         hearts: Math.min(currentUserProgress.hearts + 1, MAX_HEARTS),
         points: currentUserProgress.points + 10,
+        currentStreak: newStreak,
+        longestStreak: newLongestStreak,
+        lastActivityDate: todayStr,        // ← Corrigido aqui
       })
       .where(eq(userProgress.userId, userId));
 
@@ -77,6 +108,9 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     .update(userProgress)
     .set({
       points: currentUserProgress.points + 10,
+      currentStreak: newStreak,
+      longestStreak: newLongestStreak,
+      lastActivityDate: todayStr,          // ← Corrigido aqui
     })
     .where(eq(userProgress.userId, userId));
 

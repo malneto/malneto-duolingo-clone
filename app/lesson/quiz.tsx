@@ -41,6 +41,8 @@ type QuizProps = {
         isActive: boolean;
       })
     | null;
+
+  currentStreak?: number;     // ← ADICIONE ESTA LINHA
 };
 
 export const Quiz = ({
@@ -49,6 +51,7 @@ export const Quiz = ({
   initialLessonId,
   initialLessonChallenges,
   userSubscription,
+  currentStreak = 0,          // ← ADICIONE ESTA LINHA (valor padrão)
 }: QuizProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });

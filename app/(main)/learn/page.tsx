@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Streak } from "@/components/streak";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
@@ -52,9 +53,20 @@ const LearnPage = async () => {
           hasActiveSubscription={isPro}
         />
 
+        {/* OFENSIVO - STREAK (fica fixo na lateral, como no Duolingo) */}
+        <div className="mt-6">
+          <Streak 
+            currentStreak={userProgress.currentStreak || 0}
+            longestStreak={userProgress.longestStreak || 0}
+          />
+        </div>
+
         {!isPro && <Promo />}
         <Quests points={userProgress.points} />
       </StickyWrapper>
+
+
+
       <FeedWrapper>
         <Header title={userProgress.activeCourse.title} />
         {units.map((unit) => (

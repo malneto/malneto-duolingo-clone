@@ -8,6 +8,7 @@ type UnitProps = {
   order: number;
   title: string;
   description: string;
+  icon?: string;                    // ← NOVO: Ícone da unidade
   lessons: (typeof lessons.$inferSelect & {
     completed: boolean;
   })[];
@@ -22,13 +23,18 @@ type UnitProps = {
 export const Unit = ({
   title,
   description,
+  icon = "⭐",                       // ← Valor padrão (estrela)
   lessons,
   activeLesson,
   activeLessonPercentage,
 }: UnitProps) => {
   return (
     <>
-      <UnitBanner title={title} description={description} />
+      <UnitBanner 
+        title={title} 
+        description={description}
+        icon={icon || "⭐"}     // ← Adicione esta linha
+      />
 
       <div className="relative flex flex-col items-center">
         {lessons.map((lesson, i) => {
