@@ -80,24 +80,3 @@ body,
     @apply bg-background text-foreground;
   }
 }
-
-/* =============================================
-   REMOVE COMPLETAMENTE O MENU SANDUÍCHE (☰) 
-   de toda a aplicação
-   ============================================= */
-
-button[aria-label*="Menu"],
-button[aria-label*="menu"],
-.lg\:fixed,
-[class*="Sidebar"],
-aside,
-nav[class*="left-0"],
-div[class*="left-0"] {
-  display: none !important;
-}
-
-/* Esconde também o botão do hambúrguer que aparece no mobile */
-.lg\:hidden button svg:has(path[d^="M3 6h18"]),
-.lg\:hidden button svg:has(path[d^="M4 6h16"]) {
-  display: none !important;
-}
