@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, Target, ShoppingBag } from "lucide-react";
-
-import { MESSAGES } from "@/constants/messages";
+import Image from "next/image";
 
 export const BottomNavigation = () => {
   const pathname = usePathname();
@@ -15,24 +13,24 @@ export const BottomNavigation = () => {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 lg:hidden">
       <div className="flex items-center justify-around py-2 max-w-[1140px] mx-auto">
         
-        <Link href="/learn" className={`flex flex-col items-center gap-1 py-1 px-4 ${isActive('/learn') ? 'text-green-600' : 'text-neutral-500'}`}>
-          <Home className="w-6 h-6" />
-          <span className="text-xs font-medium">{MESSAGES.learn}</span>
+        {/* APRENDER */}
+        <Link href="/learn" className={`flex flex-col items-center py-1 px-6 ${isActive('/learn') ? 'opacity-100' : 'opacity-60'}`}>
+          <Image src="/learn.svg" alt="Aprender" width={32} height={32} />
         </Link>
 
-        <Link href="/leaderboard" className={`flex flex-col items-center gap-1 py-1 px-4 ${isActive('/leaderboard') ? 'text-green-600' : 'text-neutral-500'}`}>
-          <Trophy className="w-6 h-6" />
-          <span className="text-xs font-medium">{MESSAGES.leaderboard}</span>
+        {/* CLASSIFICAÇÃO */}
+        <Link href="/leaderboard" className={`flex flex-col items-center py-1 px-6 ${isActive('/leaderboard') ? 'opacity-100' : 'opacity-60'}`}>
+          <Image src="/leaderboard.svg" alt="Classificação" width={32} height={32} />
         </Link>
 
-        <Link href="/quests" className={`flex flex-col items-center gap-1 py-1 px-4 ${isActive('/quests') ? 'text-green-600' : 'text-neutral-500'}`}>
-          <Target className="w-6 h-6" />
-          <span className="text-xs font-medium">{MESSAGES.quests}</span>
+        {/* MISSÕES */}
+        <Link href="/quests" className={`flex flex-col items-center py-1 px-6 ${isActive('/quests') ? 'opacity-100' : 'opacity-60'}`}>
+          <Image src="/quests.svg" alt="Missões" width={32} height={32} />
         </Link>
 
-        <Link href="/shop" className={`flex flex-col items-center gap-1 py-1 px-4 ${isActive('/shop') ? 'text-green-600' : 'text-neutral-500'}`}>
-          <ShoppingBag className="w-6 h-6" />
-          <span className="text-xs font-medium">{MESSAGES.shop}</span>
+        {/* LOJA */}
+        <Link href="/shop" className={`flex flex-col items-center py-1 px-6 ${isActive('/shop') ? 'opacity-100' : 'opacity-60'}`}>
+          <Image src="/shop.svg" alt="Loja" width={32} height={32} />
         </Link>
 
       </div>
