@@ -15,32 +15,32 @@ export const LessonTopBar = ({
 }: LessonTopBarProps) => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-sm">
-      <div className="mx-auto max-w-[1140px] px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-[1140px] px-4 py-2.5 flex items-center justify-between">
         
         {/* Corações */}
         <div className="flex items-center gap-1">
-          <Image src="/heart.svg" alt="Hearts" width={28} height={28} />
-          <span className="font-bold text-xl text-rose-500">
+          <Image src="/heart.svg" alt="Hearts" width={24} height={24} />
+          <span className="font-bold text-lg text-rose-500">
             {hasActiveSubscription ? "∞" : hearts}
           </span>
         </div>
 
         {/* XP */}
         <div className="flex items-center gap-1">
-          <Image src="/points.svg" alt="XP" width={24} height={24} />
-          <span className="font-bold text-xl text-amber-500">{points}</span>
+          <Image src="/points.svg" alt="XP" width={22} height={22} />
+          <span className="font-bold text-lg text-amber-500">{points}</span>
         </div>
 
         {/* Streak */}
         <div className="flex items-center gap-1">
           <span className="text-2xl">🔥</span>
-          <span className="font-bold text-xl text-orange-500">{currentStreak}</span>
+          <span className="font-bold text-lg text-orange-500">{currentStreak}</span>
         </div>
 
-        {/* Maçã (Poder) */}
+        {/* Maçã (Poder) - placeholder */}
         <div className="flex items-center gap-1">
-          <Image src="/apple.svg" alt="Apple Power" width={26} height={26} />
-          <span className="font-bold text-xl text-red-500">0</span>
+          <span className="text-2xl">🍎</span>
+          <span className="font-bold text-lg text-red-500">0</span>
         </div>
 
       </div>
