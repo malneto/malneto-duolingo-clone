@@ -40,23 +40,24 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Converte para formato YYYY-MM-DD (obrigatório para coluna DATE)
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split("T")[0];
 
   const lastActivity = currentUserProgress.lastActivityDate 
     ? new Date(currentUserProgress.lastActivityDate) 
     : null;
 
-  let newStreak = 1;
+  let newStreak = 1; // Default: começa ou reinicia streak hoje
 
   if (lastActivity) {
     const diffTime = Math.abs(today.getTime() - lastActivity.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) {
+      // Dia consecutivo → aumenta streak
       newStreak = (currentUserProgress.currentStreak || 0) + 1;
     } else if (diffDays > 1) {
-      newStreak = 1; // Perdeu o streak
+      // Passou mais de 1 dia sem atividade → streak zera
+      newStreak = 1;
     }
   }
 
@@ -86,7 +87,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         points: currentUserProgress.points + 10,
         currentStreak: newStreak,
         longestStreak: newLongestStreak,
-        lastActivityDate: todayStr,        // ← Corrigido aqui
+        lastActivityDate: todayStr,
       })
       .where(eq(userProgress.userId, userId));
 
@@ -98,6 +99,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     return;
   }
 
+  // Novo desafio completado
   await db.insert(challengeProgress).values({
     challengeId,
     userId,
@@ -110,7 +112,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       points: currentUserProgress.points + 10,
       currentStreak: newStreak,
       longestStreak: newLongestStreak,
-      lastActivityDate: todayStr,          // ← Corrigido aqui
+      lastActivityDate: todayStr,
     })
     .where(eq(userProgress.userId, userId));
 

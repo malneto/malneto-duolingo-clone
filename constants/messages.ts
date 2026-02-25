@@ -56,5 +56,10 @@ export const MESSAGES = {
   exitModalDescription: "Você está prestes a sair da lição. Tem certeza?",
   keepLearning: "CONTINUAR APRENDENDO",
   endSession: "ENCERRAR SESSÃO",
+
+
+  // Leaderboard
+  leaderboardTitle: "Classificação",
+  leaderboardDescription: "Veja onde você está entre outros alunos da comunidade.",
   
 } as const;

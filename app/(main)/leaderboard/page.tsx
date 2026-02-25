@@ -8,6 +8,8 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserProgress } from "@/components/user-progress";
+import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
+
 import {
   getTopTenUsers,
   getUserProgress,
@@ -52,10 +54,10 @@ const LeaderboardPage = async () => {
           />
 
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
-            Leaderboard
+            {MESSAGES.leaderboardTitle}
           </h1>
           <p className="mb-6 text-center text-lg text-muted-foreground">
-            See where you stand among other learners in the community.
+            {MESSAGES.leaderboardDescription}
           </p>
 
           <Separator className="mb-4 h-0.5 rounded-full" />
