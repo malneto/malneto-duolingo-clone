@@ -1,4 +1,3 @@
-import { NotebookText } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -6,45 +5,43 @@ import { Button } from "@/components/ui/button";
 type UnitBannerProps = {
   title: string;
   description: string;
-  icon?: string;           // ← Novo: Ícone grande da unidade
+  icon?: string;
 };
 
 export const UnitBanner = ({ 
   title, 
   description, 
-  icon = "⭐"               // Valor padrão caso não tenha ícone
+  icon = "⭐" 
 }: UnitBannerProps) => {
   return (
-    <div className="relative w-full rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-8 text-white overflow-hidden">
-      {/* Ícone grande no fundo */}
-      <div className="absolute -right-6 -top-8 text-[120px] opacity-20">
-        {icon}
-      </div>
-
-      <div className="flex items-start gap-6 relative z-10">
-        {/* Ícone principal */}
-        <div className="text-6xl flex-shrink-0">
+    <div className="w-full rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 p-5 text-white shadow-md">
+      <div className="flex items-center gap-4">
+        
+        {/* Ícone pequeno do assunto */}
+        <div className="text-5xl flex-shrink-0">
           {icon}
         </div>
 
-        <div className="space-y-3">
-          <h3 className="text-3xl font-bold tracking-tight">{title}</h3>
-          <p className="text-lg text-white/90 leading-relaxed">
+        {/* Textos */}
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-bold leading-tight line-clamp-2">
+            {title}
+          </h2>
+          <p className="text-sm text-green-100 mt-1 line-clamp-2">
             {description}
           </p>
         </div>
-      </div>
 
-      <Link href="/lesson" className="mt-6 block">
-        <Button
-          size="lg"
-          variant="secondary"
-          className="border-2 border-b-4 active:border-b-2 border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold"
-        >
-          <NotebookText className="mr-2 h-5 w-5" />
-          Continue
-        </Button>
-      </Link>
+        {/* Botão CONTINUE ao lado */}
+        <Link href="/lesson">
+          <Button 
+            variant="secondary" 
+            className="border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold whitespace-nowrap px-6"
+          >
+            CONTINUE
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 };

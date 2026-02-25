@@ -78,7 +78,9 @@ const LearnPage = async () => {
         </StickyWrapper>
 
         <FeedWrapper>
-          <Header title={userProgress.activeCourse.title} />
+          
+          {/*<Header title={userProgress.activeCourse.title} />*/}
+          
           {units.map((unit) => (
             <div key={unit.id} className="mb-10">
               <Unit
