@@ -33,12 +33,11 @@ export const PracticeModal = () => {
           </div>
 
           <DialogTitle className="text-center text-2xl font-bold">
-            {MESSAGES.practiceLesson} Practice lesson
+            {MESSAGES.practiceLesson}
           </DialogTitle>
 
           <DialogDescription className="text-center text-base">
-            {MESSAGES.praticeLessonUse} Use practice lessons to regain hearts and points. You cannot loose
-            hearts or points in practice lessons.
+            {MESSAGES.praticeLessonUse}
           </DialogDescription>
         </DialogHeader>
 
@@ -50,7 +49,7 @@ export const PracticeModal = () => {
               size="lg"
               onClick={close}
             >
-              {MESSAGES.iUndertand} I understand
+              {MESSAGES.iUndertand}
             </Button>
           </div>
         </DialogFooter>

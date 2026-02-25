@@ -6,7 +6,7 @@ export const MESSAGES = {
   coursesTitle: "Meus Cursos Disponíveis!",
 
   // Marketing Page (Página inicial)
-  marketingTitle: "Aprenda, pratique e domine novos idiomas com o Lingo.",
+  marketingTitle: "Aprenda, pratique e fique sabido com a turma do HeitorLingo.",
   getStarted: "Começar agora",
   alreadyHaveAccount: "Já tenho uma conta",
   continueLearning: "Continuar aprendendo",
@@ -69,8 +69,11 @@ export const MESSAGES = {
   leaderboardDescription: "Veja onde você está entre outros alunos da comunidade.",
 
   // Practice Lessons
-  practiceLesson: "Practice lesson",
-  praticeLessonUse: "Use practice lessons to regain hearts and points. You cannot loose hearts or points in practice lessons.",
-  iUndertand: "I understand",
+  practiceLesson: "Lições para treinar!",
+  praticeLessonUse: "Use lições de treinamento para ganhar coração e XP. Você não perde nada por praticar!",
+  iUndertand: "Tudo bem!",
+
+  greatJob: "Excelente!",
+  youCompletedTheLesson: "Lição concluída!",
   
 } as const;
