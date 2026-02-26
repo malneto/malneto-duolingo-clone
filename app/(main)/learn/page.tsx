@@ -48,7 +48,7 @@ const LearnPage = async () => {
 
   return (
     <>
-      {/* TOP BAR FIXA NO TOPO */}
+      {/* Top Bar */}
       <LessonTopBar
         hearts={userProgress.hearts}
         points={userProgress.points}
@@ -56,8 +56,8 @@ const LearnPage = async () => {
         hasActiveSubscription={isPro}
       />
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16 pb-24 lg:pb-0 min-h-screen">
+      {/* Conteúdo principal - com ajuste seguro para mobile */}
+      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16 pb-28 lg:pb-0 min-h-screen">
         
         <StickyWrapper>
           <UserProgress
@@ -97,7 +97,7 @@ const LearnPage = async () => {
         </FeedWrapper>
       </div>
 
-      {/* MENU INFERIOR FIXO - SÓ NO CELULAR */}
+      {/* Bottom Navigation - só no celular */}
       <BottomNavigation />
     </>
   );
