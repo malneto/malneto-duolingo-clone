@@ -17,7 +17,7 @@ import {
   getUserSubscription,
 } from &quot;@/db/queries&quot;;
 
-import { Header } from &quot;./header&quot;;
+
 import { UnitsList } from &quot;./units-list&quot;;
 
 const LearnPage = async () =&gt; {
@@ -79,7 +79,7 @@ const LearnPage = async () =&gt; {
         &lt;/StickyWrapper&gt;
 
         &lt;FeedWrapper&gt;
-          &lt;Header title={userProgress.activeCourse.title} /&gt;
+
           
           &lt;UnitsList 
             units={units} 

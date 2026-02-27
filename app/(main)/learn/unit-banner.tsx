@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Notebook } from "lucide-react";
 
 type UnitBannerProps = {
   unitOrder: number;
@@ -25,10 +26,10 @@ export const UnitBanner = ({
         &lt;/div&gt;
         &lt;Link href="/lesson"&gt;
           &lt;Button 
-            variant="secondary" 
-            className="border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold whitespace-nowrap px-6 py-2 flex-shrink-0"
+            variant="secondary" size="icon" 
+            className="border-2 border-white/30 bg-white/10 hover:bg-white/20 h-10 w-10 flex-shrink-0"
           &gt;
-            CONTINUE
+            <Notebook className="h-5 w-5" />
           &lt;/Button&gt;
         &lt;/Link&gt;
       &lt;/div&gt;
