@@ -11,11 +11,7 @@ export const getStripe = () => {
       throw new Error("❌ Stripe não configurado. Adicione STRIPE_API_SECRET_KEY no .env para ativar corações premium.");
     }
 
-    stripeInstance = new Stripe(key, {
-      apiVersion: "2026-01-28.clover",
-      typescript: true,
-    });
-  }
+    stripeInstance = new Stripe(key);  }
 
   return stripeInstance;
 };

@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 type BottomNavigationProps = {
   courseIcon?: string;        // ← Ícone do curso atual (bandeira, emoji, etc.)
+  className?: string;
 };
 
-export const BottomNavigation = ({ courseIcon = "🇬🇧" }: BottomNavigationProps) => {
+export const BottomNavigation = ({ courseIcon = "🇬🇧", className }: BottomNavigationProps) => {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 lg:hidden">
+    <div className={cn("fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 lg:hidden", className)}>
       <div className="flex items-center justify-around py-2 max-w-[1140px] mx-auto">
         
         {/* ÍCONE DO CURSO ATUAL - Clica em /courses */}
