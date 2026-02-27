@@ -48,7 +48,7 @@ export const LessonButton = ({
     'ROBOTICS': '🤖',
     'MATH': '🔢',
     'SCIENCE': '🧪',
-    'ENGLISH': '🇬🇧',
+    'ENGLISH': '🇺🇸',
     'PORTUGUESE': '🇧🇷',
     'ASTRONOMY': '🌌',
     'FINANCE INFLUENCE': '💰',
