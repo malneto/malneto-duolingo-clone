@@ -52,7 +52,7 @@ export const getUnits = cache(async () => {
           id: true,
           title: true,
           order: true,
-          subject: true,           // ← Adicionado aqui
+          subject: true,
         },
         orderBy: (lessons, { asc }) => [asc(lessons.order)],
         with: {
@@ -66,6 +66,7 @@ export const getUnits = cache(async () => {
           },
         },
       },
+      section: true,
     },
   });
 
