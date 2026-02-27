@@ -24,9 +24,9 @@ export const Card = ({
     <div
       onClick={() => onClick(id)}
       className={cn(
-        "relative group flex h-[170px] min-w-[200px] cursor-pointer flex-col items-center justify-between rounded-2xl p-5 shadow-lg border border-gray-200 hover:shadow-2xl hover:scale-[1.02] hover:border-green-400 transition-all duration-300 bg-white overflow-hidden",
+        "relative group flex h-[168px] cursor-pointer flex-col items-center justify-between rounded-2xl p-4 shadow-sm border border-gray-200 hover:scale-105 hover:border-green-400 transition-all duration-300 bg-white overflow-hidden",
         disabled && "pointer-events-none opacity-50",
-        isActive && "ring-2 ring-green-200/50 shadow-2xl border-green-400 bg-green-50"
+        isActive && "ring-2 ring-green-200/50 shadow-2xl border-green-400 bg-green-100"
       )}
     >
       {isActive && (
@@ -45,7 +45,7 @@ export const Card = ({
         className="w-14 h-14 rounded-2xl object-cover shadow-lg mb-4"
       />
 
-      <p className="mt-auto text-center text-base md:text-lg font-bold text-neutral-800 flex-none">{title}</p>
+      <p className="mt-auto text-center text-base font-medium text-neutral-800 flex-none">{title}</p>
     </div>
   );
 };
