@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
+import { redirect } from &quot;next/navigation&quot;;
 
-import { Streak } from "@/components/streak";
-import { FeedWrapper } from "@/components/feed-wrapper";
-import { Promo } from "@/components/promo";
-import { Quests } from "@/components/quests";
-import { StickyWrapper } from "@/components/sticky-wrapper";
-import { UserProgress } from "@/components/user-progress";
-import { LessonTopBar } from "@/components/lesson-top-bar";
-import { BottomNavigation } from "@/components/bottom-navigation";
+import { Streak } from &quot;@/components/streak&quot;;
+import { FeedWrapper } from &quot;@/components/feed-wrapper&quot;;
+import { Promo } from &quot;@/components/promo&quot;;
+import { Quests } from &quot;@/components/quests&quot;;
+import { StickyWrapper } from &quot;@/components/sticky-wrapper&quot;;
+import { UserProgress } from &quot;@/components/user-progress&quot;;
+import { LessonTopBar } from &quot;@/components/lesson-top-bar&quot;;
+import { BottomNavigation } from &quot;@/components/bottom-navigation&quot;;
 
 import {
   getCourseProgress,
@@ -15,12 +15,12 @@ import {
   getUnits,
   getUserProgress,
   getUserSubscription,
-} from "@/db/queries";
+} from &quot;@/db/queries&quot;;
 
-import { Header } from "./header";
-import { Unit } from "./unit";
+import { Header } from &quot;./header&quot;;
+import { UnitsList } from &quot;./units-list&quot;;
 
-const LearnPage = async () => {
+const LearnPage = async () =&gt; {
   const userProgressData = getUserProgress();
   const courseProgressData = getCourseProgress();
   const lessonPercentageData = getLessonPercentage();
@@ -42,64 +42,56 @@ const LearnPage = async () => {
   ]);
 
   if (!courseProgress || !userProgress || !userProgress.activeCourse)
-    redirect("/courses");
+    redirect(&quot;/courses&quot;);
 
   const isPro = !!userSubscription?.isActive;
 
   return (
-    <>
+    &lt;&gt;
       {/* Top Bar */}
-      <LessonTopBar
+      &lt;LessonTopBar
         hearts={userProgress.hearts}
         points={userProgress.points}
         currentStreak={userProgress.currentStreak || 0}
         hasActiveSubscription={isPro}
-      />
+      /&gt;
 
       {/* Conteúdo principal - com ajuste seguro para mobile */}
-      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16 pb-28 lg:pb-0 min-h-screen">
+      &lt;div className=&quot;flex flex-row-reverse gap-[48px] px-6 pt-16 pb-28 lg:pb-0 min-h-screen&quot;&gt;
         
-        <StickyWrapper>
-          <UserProgress
+        &lt;StickyWrapper&gt;
+          &lt;UserProgress
             activeCourse={userProgress.activeCourse}
             hearts={userProgress.hearts}
             points={userProgress.points}
             hasActiveSubscription={isPro}
-          />
+          /&gt;
 
-          <div className="mt-6">
-            <Streak 
+          &lt;div className=&quot;mt-6&quot;&gt;
+            &lt;Streak 
               currentStreak={userProgress.currentStreak || 0}
               longestStreak={userProgress.longestStreak || 0}
-            />
-          </div>
+            /&gt;
+          &lt;/div&gt;
 
-          {!isPro && <Promo />}
-          <Quests points={userProgress.points} />
-        </StickyWrapper>
+          {!isPro &amp;&amp; &lt;Promo /&gt;}
+          &lt;Quests points={userProgress.points} /&gt;
+        &lt;/StickyWrapper&gt;
 
-        <FeedWrapper>
-          <Header title={userProgress.activeCourse.title} />
+        &lt;FeedWrapper&gt;
+          &lt;Header title={userProgress.activeCourse.title} /&gt;
           
-          {units.map((unit) => (
-            <div key={unit.id} className="mb-10">
-              <Unit
-                id={unit.id}
-                order={unit.order}
-                description={unit.description || "Sem descrição disponível"}
-                title={unit.title}
-                lessons={unit.lessons}
-                activeLesson={courseProgress.activeLesson}
-                activeLessonPercentage={lessonPercentage}
-              />
-            </div>
-          ))}
-        </FeedWrapper>
-      </div>
+          &lt;UnitsList 
+            units={units} 
+            activeLesson={courseProgress.activeLesson} 
+            activeLessonPercentage={lessonPercentage} 
+          /&gt;
+        &lt;/FeedWrapper&gt;
+      &lt;/div&gt;
 
       {/* Bottom Navigation - só no celular */}
-      <BottomNavigation />
-    </>
+      &lt;BottomNavigation /&gt;
+    &lt;/&gt;
   );
 };
 

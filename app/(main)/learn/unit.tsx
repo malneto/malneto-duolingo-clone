@@ -1,26 +1,25 @@
 import { lessons, units } from "@/db/schema";
 
 import { LessonButton } from "./lesson-button";
-import { UnitBanner } from "./unit-banner";
 
 type UnitProps = {
   id: number;
   order: number;
   title: string;
-  description: string;
-  icon?: string;
+  // description removed
+  // icon removed
 
-  lessons: Array<{
+  lessons: Array&lt;{
     id: number;
     title: string;
     order: number;
     completed: boolean;
     subject?: string | null;
     unitId?: number;
-  }>;
+  }&gt;;
 
   activeLesson:
-    | (typeof lessons.$inferSelect & {
+    | (typeof lessons.$inferSelect &amp; {
         unit: typeof units.$inferSelect;
       })
     | undefined;
@@ -28,40 +27,32 @@ type UnitProps = {
 };
 
 export const Unit = ({
+  id,
+  order,
   title,
-  description,
-  icon = "⭐",
   lessons,
   activeLesson,
   activeLessonPercentage,
-}: UnitProps) => {
+}: UnitProps) =&gt; {
   return (
-    <>
-      <UnitBanner 
-        title={title} 
-        description={description}
-        icon={icon} 
-      />
+    &lt;div className="relative flex flex-col items-center"&gt;
+      {lessons.map((lesson, i) =&gt; {
+        const isCurrent = lesson.id === activeLesson?.id;
+        const isLocked = !lesson.completed &amp;&amp; !isCurrent;
 
-      <div className="relative flex flex-col items-center">
-        {lessons.map((lesson, i) => {
-          const isCurrent = lesson.id === activeLesson?.id;
-          const isLocked = !lesson.completed && !isCurrent;
-
-          return (
-            <LessonButton
-              key={lesson.id}
-              id={lesson.id}
-              index={i}
-              totalCount={lessons.length - 1}
-              current={isCurrent}
-              locked={isLocked}
-              percentage={activeLessonPercentage}
-              subject={lesson.subject || "DEFAULT"}
-            />
-          );
-        })}
-      </div>
-    </>
+        return (
+          &lt;LessonButton
+            key={lesson.id}
+            id={lesson.id}
+            index={i}
+            totalCount={lessons.length - 1}
+            current={isCurrent}
+            locked={isLocked}
+            percentage={activeLessonPercentage}
+            subject={lesson.subject || "DEFAULT"}
+          /&gt;
+        );
+      })}
+    &lt;/div&gt;
   );
 };
