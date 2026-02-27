@@ -11,5 +11,14 @@ const nextConfig = {
   experimental: {
     turbopack: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+        pathname: '**',
+      },
+    ],
+  },
 };
 module.exports = nextConfig;
