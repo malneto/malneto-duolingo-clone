@@ -80,3 +80,4 @@ body,
     @apply bg-background text-foreground;
   }
 }
+@media (max-width: 1023px) { .lucide-menu { display: none !important; } }

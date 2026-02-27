@@ -7,7 +7,7 @@ import { Sidebar } from "./sidebar";
 export const MobileSidebar = () => {
   return (
     <Sheet>
-      <SheetTrigger>
+      <SheetTrigger className="hidden">
         <Menu className="text-white" />
       </SheetTrigger>
 

@@ -43,6 +43,7 @@ export default function RootLayout({
           <HeartsModal />
           <PracticeModal />
           {children}
+<BottomNavigation className="lg:hidden" />
         </body>
       </html>
     </ClerkProvider>
