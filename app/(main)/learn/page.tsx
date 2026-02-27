@@ -1,13 +1,13 @@
-import { redirect } from &quot;next/navigation&quot;;
+import { redirect } from "next/navigation";
 
-import { Streak } from &quot;@/components/streak&quot;;
-import { FeedWrapper } from &quot;@/components/feed-wrapper&quot;;
-import { Promo } from &quot;@/components/promo&quot;;
-import { Quests } from &quot;@/components/quests&quot;;
-import { StickyWrapper } from &quot;@/components/sticky-wrapper&quot;;
-import { UserProgress } from &quot;@/components/user-progress&quot;;
-import { LessonTopBar } from &quot;@/components/lesson-top-bar&quot;;
-import { BottomNavigation } from &quot;@/components/bottom-navigation&quot;;
+import { Streak } from "@/components/streak";
+import { FeedWrapper } from "@/components/feed-wrapper";
+import { Promo } from "@/components/promo";
+import { Quests } from "@/components/quests";
+import { StickyWrapper } from "@/components/sticky-wrapper";
+import { UserProgress } from "@/components/user-progress";
+import { LessonTopBar } from "@/components/lesson-top-bar";
+import { BottomNavigation } from "@/components/bottom-navigation";
 
 import {
   getCourseProgress,
@@ -15,12 +15,12 @@ import {
   getUnits,
   getUserProgress,
   getUserSubscription,
-} from &quot;@/db/queries&quot;;
+} from "@/db/queries";
 
 
-import { UnitsList } from &quot;./units-list&quot;;
+import { UnitsList } from "./units-list";
 
-const LearnPage = async () =&gt; {
+const LearnPage = async () => {
   const userProgressData = getUserProgress();
   const courseProgressData = getCourseProgress();
   const lessonPercentageData = getLessonPercentage();
@@ -42,56 +42,56 @@ const LearnPage = async () =&gt; {
   ]);
 
   if (!courseProgress || !userProgress || !userProgress.activeCourse)
-    redirect(&quot;/courses&quot;);
+    redirect("/courses");
 
   const isPro = !!userSubscription?.isActive;
 
   return (
-    &lt;&gt;
+    <>
       {/* Top Bar */}
-      &lt;LessonTopBar
+      <LessonTopBar
         hearts={userProgress.hearts}
         points={userProgress.points}
         currentStreak={userProgress.currentStreak || 0}
         hasActiveSubscription={isPro}
-      /&gt;
+      />
 
       {/* Conteúdo principal - com ajuste seguro para mobile */}
-      &lt;div className=&quot;flex flex-row-reverse gap-[48px] px-6 pt-16 pb-28 lg:pb-0 min-h-screen&quot;&gt;
+      <div className="flex flex-row-reverse gap-[48px] px-6 pt-16 pb-28 lg:pb-0 min-h-screen">
         
-        &lt;StickyWrapper&gt;
-          &lt;UserProgress
+        <StickyWrapper>
+          <UserProgress
             activeCourse={userProgress.activeCourse}
             hearts={userProgress.hearts}
             points={userProgress.points}
             hasActiveSubscription={isPro}
-          /&gt;
+          />
 
-          &lt;div className=&quot;mt-6&quot;&gt;
-            &lt;Streak 
+          <div className="mt-6">
+            <Streak 
               currentStreak={userProgress.currentStreak || 0}
               longestStreak={userProgress.longestStreak || 0}
-            /&gt;
-          &lt;/div&gt;
+            />
+          </div>
 
-          {!isPro &amp;&amp; &lt;Promo /&gt;}
-          &lt;Quests points={userProgress.points} /&gt;
-        &lt;/StickyWrapper&gt;
+          {!isPro && <Promo />}
+          <Quests points={userProgress.points} />
+        </StickyWrapper>
 
-        &lt;FeedWrapper&gt;
+        <FeedWrapper>
 
           
-          &lt;UnitsList 
+          <UnitsList 
             units={units} 
             activeLesson={courseProgress.activeLesson} 
             activeLessonPercentage={lessonPercentage} 
-          /&gt;
-        &lt;/FeedWrapper&gt;
-      &lt;/div&gt;
+          />
+        </FeedWrapper>
+      </div>
 
       {/* Bottom Navigation - só no celular */}
-      &lt;BottomNavigation /&gt;
-    &lt;/&gt;
+      <BottomNavigation />
+    </>
   );
 };
 

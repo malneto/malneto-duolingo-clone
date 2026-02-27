@@ -9,17 +9,17 @@ type UnitProps = {
   // description removed
   // icon removed
 
-  lessons: Array&lt;{
+  lessons: Array<{
     id: number;
     title: string;
     order: number;
     completed: boolean;
     subject?: string | null;
     unitId?: number;
-  }&gt;;
+  }>;
 
   activeLesson:
-    | (typeof lessons.$inferSelect &amp; {
+    | (typeof lessons.$inferSelect & {
         unit: typeof units.$inferSelect;
       })
     | undefined;
@@ -33,15 +33,15 @@ export const Unit = ({
   lessons,
   activeLesson,
   activeLessonPercentage,
-}: UnitProps) =&gt; {
+}: UnitProps) => {
   return (
-    &lt;div className="relative flex flex-col items-center"&gt;
-      {lessons.map((lesson, i) =&gt; {
+    <div className="relative flex flex-col items-center">
+      {lessons.map((lesson, i) => {
         const isCurrent = lesson.id === activeLesson?.id;
-        const isLocked = !lesson.completed &amp;&amp; !isCurrent;
+        const isLocked = !lesson.completed && !isCurrent;
 
         return (
-          &lt;LessonButton
+          <LessonButton
             key={lesson.id}
             id={lesson.id}
             index={i}
@@ -50,9 +50,9 @@ export const Unit = ({
             locked={isLocked}
             percentage={activeLessonPercentage}
             subject={lesson.subject || "DEFAULT"}
-          /&gt;
+          />
         );
       })}
-    &lt;/div&gt;
+    </div>
   );
 };

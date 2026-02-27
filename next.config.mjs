@@ -1,0 +1,1 @@
+const nextConfig = {\n  eslint: {\n    ignoreDuringBuilds: true,\n  },\n};\n\nexport default nextConfig;

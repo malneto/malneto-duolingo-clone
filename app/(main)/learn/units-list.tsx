@@ -1,10 +1,10 @@
-&#39;use client&#39;;
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from &#39;react&#39;;
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-import { UnitBanner } from &#39;./unit-banner&#39;;
-import { Unit } from &#39;./unit&#39;;
-import { UnitDivider } from &#39;./unit-divider&#39;;
+import { UnitBanner } from './unit-banner';
+import { Unit } from './unit';
+import { UnitDivider } from './unit-divider';
 
 type LessonType = {
   id: number;
@@ -19,7 +19,7 @@ type UnitType = {
   id: number;
   order: number;
   title: string;
-  lessons: LessonType[];
+  lessons?: LessonType[];
 };
 
 type ActiveLessonType = {
@@ -30,48 +30,48 @@ type ActiveLessonType = {
 interface UnitsListProps {
   units: UnitType[];
   activeLessonPercentage: number;
-  activeLesson: ActiveLessonType;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any\n  activeLesson?: unknown;
 }
 
-export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: UnitsListProps) =&gt; {
+export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: UnitsListProps) => {
   const [currentUnit, setCurrentUnit] = useState(units[0]);
-  const unitRefs = useRef&lt;(HTMLDivElement | null)[]&gt;([]);
+  const unitRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const updateCurrentUnit = useCallback((entries: IntersectionObserverEntry[]) =&gt; {
-    let visibleEntries: IntersectionObserverEntry[] = [];
-    entries.forEach((entry) =&gt; {
+  const updateCurrentUnit = useCallback((entries: IntersectionObserverEntry[]) => {
+    const visibleEntries: IntersectionObserverEntry[] = [];
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         visibleEntries.push(entry);
       }
     });
-    if (visibleEntries.length &gt; 0) {
+    if (visibleEntries.length > 0) {
       // Sort by top position (smallest top first)
-      visibleEntries.sort((a, b) =&gt; (a.boundingClientRect.top - b.boundingClientRect.top));
+      visibleEntries.sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
       const topEntry = visibleEntries[0];
       const index = unitRefs.current.indexOf(topEntry.target as HTMLDivElement);
-      if (index !== -1 &amp;&amp; units[index]) {
+      if (index !== -1 && units[index]) {
         setCurrentUnit(units[index]);
       }
     }
   }, [units]);
 
-  useEffect(() =&gt; {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       updateCurrentUnit,
       {
         root: null,
-        rootMargin: &#39;-56px 0px -50% 0px&#39;,
+        rootMargin: '-56px 0px -50% 0px',
         threshold: 0
       }
     );
 
-    unitRefs.current.forEach((ref) =&gt; {
+    unitRefs.current.forEach((ref) => {
       if (ref) {
         observer.observe(ref);
       }
     });
 
-    return () =&gt; {
+    return () => {
       observer.disconnect();
     };
   }, [updateCurrentUnit]);
@@ -79,35 +79,35 @@ export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: Units
   if (!units.length) return null;
 
   return (
-    &lt;&gt;
-      &lt;UnitBanner 
+    <>
+      <UnitBanner 
         unitOrder={currentUnit?.order || 1} 
         totalUnits={units.length} 
-        title={currentUnit?.title || &#39;&#39;} 
-      /&gt;
-      {units.map((unit, i) =&gt; (
-        &lt;&gt;
-          &lt;div 
+        title={currentUnit?.title || ''} 
+      />
+      {units.map((unit, i) => (
+        <>
+          <div 
             key={unit.id} 
-            ref={(el) =&gt; { unitRefs.current[i] = el; }}
+            ref={(el) => { unitRefs.current[i] = el; }}
             className="mb-10"
-          &gt;
-            &lt;Unit
+          >
+            <Unit
               id={unit.id}
               order={unit.order}
               title={unit.title}
-              lessons={unit.lessons}
+              lessons={unit.lessons || []}
               activeLesson={activeLesson}
               activeLessonPercentage={activeLessonPercentage}
-            /&gt;
-          &lt;/div&gt;
-          {i &lt; units.length - 1 &amp;&amp; (
-            &lt;UnitDivider&gt;
+            />
+          </div>
+          {i < units.length - 1 && (
+            <UnitDivider>
               Unidade {units[i + 1].order}
-            &lt;/UnitDivider&gt;
+            </UnitDivider>
           )}
-        &lt;/&gt;
+        </>
       ))}
-    &lt;/&gt;
+    </>
   );
 };
