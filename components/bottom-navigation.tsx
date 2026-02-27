@@ -1,4 +1,4 @@
-"use client";
+// TESTE REAL FERA 2026\n"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
