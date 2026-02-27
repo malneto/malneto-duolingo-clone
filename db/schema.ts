@@ -33,6 +33,10 @@ export const sections = pgTable("sections", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const sectionsRelations = relations(sections, ({ many }) => ({
+  units: many(units),
+}));
+
 export const units = pgTable("units", {
   id: serial("id").primaryKey(),
   courseId: integer("course_id").references(() => courses.id, { onDelete: "cascade" }).notNull(),
@@ -46,6 +50,10 @@ export const unitsRelations = relations(units, ({ many, one }) => ({
   course: one(courses, {
     fields: [units.courseId],
     references: [courses.id],
+  }),
+  section: one(sections, {
+    fields: [units.sectionId],
+    references: [sections.id],
   }),
   lessons: many(lessons),
 }));
