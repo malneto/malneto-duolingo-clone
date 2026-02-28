@@ -29,41 +29,55 @@ export const Card = ({
   disabled,
   type,
 }: CardProps) => {
-  // Só cria o áudio se realmente existir áudio
-  const [audio, _, controls] = useAudio({
-    src: audioSrc || "",
-  });
+  const [audio, _, controls] = useAudio({ src: audioSrc || "" });
 
   const handleClick = useCallback(() => {
     if (disabled) return;
-
-    // Só toca áudio se existir
-    if (audioSrc && controls) {
-      void controls.play();
-    }
-
+    if (audioSrc && controls) void controls.play();
     onClick();
   }, [disabled, onClick, controls, audioSrc]);
 
   useKey(shortcut, handleClick, {}, [handleClick]);
 
+  const borderColor =
+    selected && status === "correct" ? "rgba(74,222,128,0.7)"
+    : selected && status === "wrong"   ? "rgba(248,113,113,0.7)"
+    : selected                         ? "rgba(34,211,238,0.7)"
+    : "rgba(99,102,241,0.3)";
+
+  const bgColor =
+    selected && status === "correct" ? "rgba(74,222,128,0.1)"
+    : selected && status === "wrong"   ? "rgba(248,113,113,0.1)"
+    : selected                         ? "rgba(34,211,238,0.1)"
+    : "rgba(15,23,42,0.6)";
+
+  const glowColor =
+    selected && status === "correct" ? "0 0 18px rgba(74,222,128,0.35)"
+    : selected && status === "wrong"   ? "0 0 18px rgba(248,113,113,0.35)"
+    : selected                         ? "0 0 18px rgba(34,211,238,0.35)"
+    : "0 0 8px rgba(99,102,241,0.15)";
+
+  const textColor =
+    selected && status === "correct" ? "#86efac"
+    : selected && status === "wrong"   ? "#fca5a5"
+    : selected                         ? "#67e8f9"
+    : "#94a3b8";
+
   return (
     <div
       onClick={handleClick}
       className={cn(
-        "h-full cursor-pointer rounded-xl border-2 border-b-4 p-4 hover:bg-black/5 active:border-b-2 lg:p-6",
-        selected && "border-sky-300 bg-sky-100 hover:bg-sky-100",
-        selected &&
-          status === "correct" &&
-          "border-green-300 bg-green-100 hover:bg-green-100",
-        selected &&
-          status === "wrong" &&
-          "border-rose-300 bg-rose-100 hover:bg-rose-100",
-        disabled && "pointer-events-none hover:bg-white",
+        "h-full cursor-pointer rounded-2xl border-2 p-4 transition-all duration-150 active:scale-[0.98] lg:p-6",
+        disabled && "pointer-events-none opacity-50",
         type === "ASSIST" && "w-full lg:p-3"
       )}
+      style={{
+        borderColor,
+        backgroundColor: bgColor,
+        boxShadow: glowColor,
+        backdropFilter: "blur(8px)",
+      }}
     >
-      {/* Renderiza o elemento <audio> apenas se existir áudio */}
       {audioSrc && audio}
 
       {imageSrc && (
@@ -72,33 +86,20 @@ export const Card = ({
         </div>
       )}
 
-      <div
-        className={cn(
-          "flex items-center justify-between",
-          type === "ASSIST" && "flex-row-reverse"
-        )}
-      >
+      <div className={cn("flex items-center justify-between", type === "ASSIST" && "flex-row-reverse")}>
         {type === "ASSIST" && <div aria-hidden />}
-        <p
-          className={cn(
-            "text-sm text-neutral-600 lg:text-base",
-            selected && "text-sky-500",
-            selected && status === "correct" && "text-green-500",
-            selected && status === "wrong" && "text-rose-500"
-          )}
-        >
+
+        <p className="text-sm font-semibold lg:text-base" style={{ color: textColor }}>
           {text}
         </p>
 
         <div
-          className={cn(
-            "flex h-[20px] w-[20px] items-center justify-center rounded-lg border-2 text-xs font-semibold text-neutral-400 lg:h-[30px] lg:w-[30px] lg:text-[15px]",
-            selected && "border-sky-300 text-sky-500",
-            selected &&
-              status === "correct" &&
-              "border-green-500 text-green-500",
-            selected && status === "wrong" && "border-rose-500 text-rose-500"
-          )}
+          className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold lg:h-[30px] lg:w-[30px] lg:text-[15px]"
+          style={{
+            border: `1.5px solid ${borderColor}`,
+            color: textColor,
+            backgroundColor: selected ? `${borderColor.replace("0.7", "0.15")}` : "transparent",
+          }}
         >
           {shortcut}
         </div>

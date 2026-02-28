@@ -9,7 +9,7 @@ type ChallengeOption = {
   imageSrc: string | null;
   audioSrc: string | null;
   challengeId: number;
-  matchGroup: number | null;   // ← adicionado para compatibilidade
+  matchGroup: number | null;
 };
 
 type ChallengeType = {
@@ -27,16 +27,9 @@ type VideoProps = {
   disabled?: boolean;
 };
 
-export const Video = ({
-  challenge,
-  onSelect,
-  status,
-  selectedOption,
-  disabled,
-}: VideoProps) => {
+export const Video = ({ challenge, onSelect, status, selectedOption, disabled }: VideoProps) => {
   const getYouTubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
+    const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
     return match && match[2].length === 11 ? match[2] : null;
   };
 
@@ -44,31 +37,44 @@ export const Video = ({
 
   return (
     <div className="space-y-8 px-4">
-      <div className="text-center">
-        <p className="text-2xl font-medium text-neutral-700 mb-4">
-          Assista o vídeo e responda abaixo
-        </p>
-      </div>
+      <p className="text-center text-sm font-bold uppercase tracking-widest text-indigo-300">
+        🎬 Assista e responda
+      </p>
 
       {videoId ? (
-        <div className="aspect-video w-full max-w-3xl mx-auto rounded-3xl overflow-hidden shadow-2xl">
-          <iframe
-            width="100%"
-            height="100%"
-            src={`https://www.youtube.com/embed/${videoId}`}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="rounded-3xl"
-          />
+        <div
+          className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl"
+          style={{
+            border: "2px solid rgba(99,102,241,0.4)",
+            boxShadow: "0 0 40px rgba(99,102,241,0.2), 0 0 80px rgba(99,102,241,0.08)",
+          }}
+        >
+          <div className="aspect-video">
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${videoId}`}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="rounded-3xl"
+            />
+          </div>
         </div>
       ) : (
-        <p className="text-red-500 text-center text-lg">
-          Link do YouTube inválido ou não informado
-        </p>
+        <div
+          className="mx-auto flex max-w-3xl items-center justify-center rounded-3xl py-16"
+          style={{
+            border: "2px solid rgba(248,113,113,0.4)",
+            background: "rgba(248,113,113,0.08)",
+          }}
+        >
+          <p className="text-base font-bold" style={{ color: "#fca5a5" }}>
+            ⚠️ Link do YouTube inválido ou não informado
+          </p>
+        </div>
       )}
 
-      {/* Opções de resposta abaixo do vídeo */}
       <Challenge
         options={challenge.challengeOptions}
         onSelect={onSelect}
