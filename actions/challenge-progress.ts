@@ -9,9 +9,42 @@ import db from "@/db/drizzle";
 import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 
+// ─── Streak decay table ────────────────────────────────────────────────────
+// Returns how many integer streak points to subtract based on days inactive.
+// Decay is percentage-based and applied to the CURRENT streak value.
+//
+//  1 day  →  -2%
+//  2 days →  -4%
+//  3 days →  -8%
+//  4 days → -20%
+//  5 days → -50%
+// 10+ days → -100%
+//
+function calcStreakDecay(currentStreak: number, daysInactive: number): number {
+  if (daysInactive <= 0) return 0;
+
+  let pct: number;
+  if      (daysInactive >= 10) pct = 1.00;
+  else if (daysInactive >= 5)  pct = 0.50;
+  else if (daysInactive >= 4)  pct = 0.20;
+  else if (daysInactive >= 3)  pct = 0.08;
+  else if (daysInactive >= 2)  pct = 0.04;
+  else                         pct = 0.02;   // 1 day
+
+  // Always subtract at least 1 streak point when there's any decay
+  return Math.max(1, Math.round(currentStreak * pct));
+}
+
+// ─── Helper: days between two date strings (YYYY-MM-DD) ────────────────────
+function daysBetween(dateA: string, dateB: string): number {
+  const a = new Date(dateA).getTime();
+  const b = new Date(dateB).getTime();
+  return Math.round(Math.abs(a - b) / (1000 * 60 * 60 * 24));
+}
+
+// ─── Main action ───────────────────────────────────────────────────────────
 export const upsertChallengeProgress = async (challengeId: number) => {
   const { userId } = await auth();
-
   if (!userId) throw new Error("Unauthorized.");
 
   const currentUserProgress = await getUserProgress();
@@ -22,7 +55,6 @@ export const upsertChallengeProgress = async (challengeId: number) => {
   const challenge = await db.query.challenges.findFirst({
     where: eq(challenges.id, challengeId),
   });
-
   if (!challenge) throw new Error("Challenge not found.");
 
   const lessonId = challenge.lessonId;
@@ -33,46 +65,44 @@ export const upsertChallengeProgress = async (challengeId: number) => {
       eq(challengeProgress.challengeId, challengeId)
     ),
   });
-
   const isPractice = !!existingChallengeProgress;
-
-  // ====================== SISTEMA DE OFENSIVO (STREAK) ======================
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const todayStr = today.toISOString().split("T")[0];
-
-  const lastActivity = currentUserProgress.lastActivityDate 
-    ? new Date(currentUserProgress.lastActivityDate) 
-    : null;
-
-  let newStreak = 1; // Default: começa ou reinicia streak hoje
-
-  if (lastActivity) {
-    const diffTime = Math.abs(today.getTime() - lastActivity.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) {
-      // Dia consecutivo → aumenta streak
-      newStreak = (currentUserProgress.currentStreak || 0) + 1;
-    } else if (diffDays > 1) {
-      // Passou mais de 1 dia sem atividade → streak zera
-      newStreak = 1;
-    }
-  }
-
-  const newLongestStreak = Math.max(
-    currentUserProgress.longestStreak || 0,
-    newStreak
-  );
-  // =====================================================================
 
   if (
     currentUserProgress.hearts === 0 &&
     !isPractice &&
     !userSubscription?.isActive
-  )
-    return { error: "hearts" };
+  ) return { error: "hearts" };
+
+  // ── Streak calculation ──────────────────────────────────────────────────
+  const todayStr = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const lastDate = currentUserProgress.lastActivityDate as string | null;
+
+  let newStreak = currentUserProgress.currentStreak ?? 0;
+
+  if (!lastDate) {
+    // First ever activity
+    newStreak = 1;
+  } else if (lastDate === todayStr) {
+    // Already did something today — streak unchanged
+    newStreak = currentUserProgress.currentStreak ?? 1;
+  } else {
+    const days = daysBetween(lastDate, todayStr);
+
+    if (days === 1) {
+      // Perfect — consecutive day, grow streak
+      newStreak = (currentUserProgress.currentStreak ?? 0) + 1;
+    } else {
+      // Missed days — apply decay THEN add +1 for today's activity
+      const decay = calcStreakDecay(currentUserProgress.currentStreak ?? 0, days - 1);
+      newStreak = Math.max(0, (currentUserProgress.currentStreak ?? 0) - decay) + 1;
+    }
+  }
+
+  const newLongestStreak = Math.max(
+    currentUserProgress.longestStreak ?? 0,
+    newStreak
+  );
+  // ────────────────────────────────────────────────────────────────────────
 
   if (isPractice) {
     await db
@@ -90,31 +120,23 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         lastActivityDate: todayStr,
       })
       .where(eq(userProgress.userId, userId));
+  } else {
+    await db.insert(challengeProgress).values({
+      challengeId,
+      userId,
+      completed: true,
+    });
 
-    revalidatePath("/learn");
-    revalidatePath("/lesson");
-    revalidatePath("/quests");
-    revalidatePath("/leaderboard");
-    revalidatePath(`/lesson/${lessonId}`);
-    return;
+    await db
+      .update(userProgress)
+      .set({
+        points: currentUserProgress.points + 10,
+        currentStreak: newStreak,
+        longestStreak: newLongestStreak,
+        lastActivityDate: todayStr,
+      })
+      .where(eq(userProgress.userId, userId));
   }
-
-  // Novo desafio completado
-  await db.insert(challengeProgress).values({
-    challengeId,
-    userId,
-    completed: true,
-  });
-
-  await db
-    .update(userProgress)
-    .set({
-      points: currentUserProgress.points + 10,
-      currentStreak: newStreak,
-      longestStreak: newLongestStreak,
-      lastActivityDate: todayStr,
-    })
-    .where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");
   revalidatePath("/lesson");

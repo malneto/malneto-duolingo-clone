@@ -1,80 +1,127 @@
-import { InfinityIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { courses } from "@/db/schema";
+"use server";
 
-type UserProgressProps = {
-  activeCourse: typeof courses.$inferSelect;
-  hearts: number;
-  points: number;
-  hasActiveSubscription: boolean;
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { MAX_HEARTS, POINTS_TO_REFILL } from "@/constants";
+import db from "@/db/drizzle";
+import {
+  getCourseById,
+  getUserProgress,
+  getUserSubscription,
+} from "@/db/queries";
+import { challengeProgress, challenges, userProgress } from "@/db/schema";
+
+export const upsertUserProgress = async (courseId: number) => {
+  const { userId } = await auth();
+  const user = await currentUser();
+
+  if (!userId || !user) throw new Error("Unauthorized.");
+
+  const course = await getCourseById(courseId);
+
+  if (!course) throw new Error("Course not found.");
+
+  if (!course.units.length || !course.units[0].lessons.length)
+    throw new Error("Course is empty.");
+
+  const existingUserProgress = await getUserProgress();
+
+  if (existingUserProgress) {
+    await db
+      .update(userProgress)
+      .set({
+        activeCourseId: courseId,
+        userName: user.firstName || "User",
+        userImageSrc: user.imageUrl || "/mascot.svg",
+      })
+      .where(eq(userProgress.userId, userId));
+
+    revalidatePath("/courses");
+    revalidatePath("/learn");
+    redirect("/learn");
+  }
+
+  await db.insert(userProgress).values({
+    userId,
+    activeCourseId: courseId,
+    userName: user.firstName || "User",
+    userImageSrc: user.imageUrl || "/mascot.svg",
+  });
+
+  revalidatePath("/courses");
+  revalidatePath("/learn");
+  redirect("/learn");
 };
 
-export const UserProgress = ({
-  activeCourse,
-  hearts,
-  points,
-  hasActiveSubscription,
-}: UserProgressProps) => {
-  return (
-    <div
-      className="flex w-full items-center justify-between gap-x-2 rounded-2xl px-4 py-3"
-      style={{
-        background: "rgba(15,23,42,0.7)",
-        border: "1.5px solid rgba(99,102,241,0.2)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      {/* Active course flag */}
-      <Link href="/courses">
-        <div
-          className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-xl transition-all hover:scale-110 active:scale-95"
-          style={{
-            border: "1.5px solid rgba(99,102,241,0.4)",
-            boxShadow: "0 0 8px rgba(99,102,241,0.25)",
-          }}
-        >
-          <Image
-            src={activeCourse.imageSrc}
-            alt={activeCourse.title}
-            width={32}
-            height={32}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </Link>
+export const reduceHearts = async (challengeId: number) => {
+  const { userId } = await auth();
 
-      {/* XP */}
-      <Link href="/shop">
-        <div
-          className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 transition-all hover:scale-105 active:scale-95"
-          style={{
-            background: "rgba(251,191,36,0.1)",
-            border: "1px solid rgba(251,191,36,0.3)",
-          }}
-        >
-          <Image src="/points.svg" height={20} width={20} alt="Points" />
-          <span className="text-sm font-extrabold" style={{ color: "#fcd34d" }}>
-            {points}
-          </span>
-        </div>
-      </Link>
+  if (!userId) throw new Error("Unauthorized.");
 
-      {/* Hearts */}
-      <Link href="/shop">
-        <div
-          className="flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 transition-all hover:scale-105 active:scale-95"
-          style={{
-            background: "rgba(248,113,113,0.1)",
-            border: "1px solid rgba(248,113,113,0.3)",
-          }}
-        >
-          <Image src="/heart.svg" height={20} width={20} alt="Hearts" />
-          <span className="text-sm font-extrabold" style={{ color: "#fca5a5" }}>
-            {hasActiveSubscription ? <InfinityIcon className="h-4 w-4 stroke-[3]" /> : hearts}
-          </span>
-        </div>
-      </Link>
-    </div>
-  );
+  const currentUserProgress = await getUserProgress();
+  const userSubscription = await getUserSubscription();
+
+  const challenge = await db.query.challenges.findFirst({
+    where: eq(challenges.id, challengeId),
+  });
+
+  if (!challenge) throw new Error("Challenge not found.");
+
+  const lessonId = challenge.lessonId;
+
+  const existingChallengeProgress = await db.query.challengeProgress.findFirst({
+    where: and(
+      eq(challengeProgress.userId, userId),
+      eq(challengeProgress.challengeId, challengeId)
+    ),
+  });
+
+  const isPractice = !!existingChallengeProgress;
+
+  if (isPractice) return { error: "practice" };
+
+  if (!currentUserProgress) throw new Error("User progress not found.");
+
+  if (userSubscription?.isActive) return { error: "subscription" };
+
+  if (currentUserProgress.hearts === 0) return { error: "hearts" };
+
+  await db
+    .update(userProgress)
+    .set({
+      hearts: Math.max(currentUserProgress.hearts - 1, 0),
+    })
+    .where(eq(userProgress.userId, userId));
+
+  revalidatePath("/shop");
+  revalidatePath("/learn");
+  revalidatePath("/quests");
+  revalidatePath("/leaderboard");
+  revalidatePath(`/lesson/${lessonId}`);
+};
+
+export const refillHearts = async () => {
+  const currentUserProgress = await getUserProgress();
+
+  if (!currentUserProgress) throw new Error("User progress not found.");
+  if (currentUserProgress.hearts === MAX_HEARTS)
+    throw new Error("Hearts are already full.");
+  if (currentUserProgress.points < POINTS_TO_REFILL)
+    throw new Error("Not enough points.");
+
+  await db
+    .update(userProgress)
+    .set({
+      hearts: MAX_HEARTS,
+      points: currentUserProgress.points - POINTS_TO_REFILL,
+    })
+    .where(eq(userProgress.userId, currentUserProgress.userId));
+
+  revalidatePath("/shop");
+  revalidatePath("/learn");
+  revalidatePath("/quests");
+  revalidatePath("/leaderboard");
 };
