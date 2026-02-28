@@ -21,61 +21,43 @@ type ListenAndTypeProps = {
   status: "correct" | "wrong" | "none";
   selectedOption?: number;
   disabled?: boolean;
+  onResult: (isCorrect: boolean) => void;
+  registerSubmit: (fn: () => void) => void;
 };
 
 export const ListenAndType = ({
   challenge,
   onSelect,
   status,
-  selectedOption,
   disabled,
+  onResult,
+  registerSubmit,
 }: ListenAndTypeProps) => {
   const [input, setInput] = useState("");
 
   const correctOption = challenge.challengeOptions.find((opt) => opt.correct);
 
-  const normalizeText = (text: string) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, " ");
-  };
+  const normalizeText = (text: string) =>
+    text.toLowerCase().trim().replace(/[^\w\s]/g, "").replace(/\s+/g, " ");
 
   const handleSubmit = () => {
     if (!correctOption || !input.trim() || status !== "none") return;
-
-    const normalizedInput = normalizeText(input);
-    const normalizedCorrect = normalizeText(correctOption.text);
-
-    // === DEBUG ===
-    console.log("=== DEBUG LISTEN_AND_TYPE ===");
-    console.log("Usuário digitou (original):", input);
-    console.log("Usuário digitou (normalizado):", normalizedInput);
-    console.log("Resposta correta no banco (original):", correctOption.text);
-    console.log("Resposta correta no banco (normalizado):", normalizedCorrect);
-    console.log("São iguais?", normalizedInput === normalizedCorrect);
-    // =============
-
-    const isCorrect = normalizedInput === normalizedCorrect;
-
-    if (isCorrect) {
-      onSelect(correctOption.id);
-    } else {
-      onSelect(-1);
-    }
+    const isCorrect = normalizeText(input) === normalizeText(correctOption.text);
+    onResult(isCorrect);
   };
 
-  // Habilita o botão CHECK do Footer assim que digitar qualquer coisa
   useEffect(() => {
-    if (input.trim()) {
+    registerSubmit(handleSubmit);
+  });
+
+  useEffect(() => {
+    if (input.trim().length > 0) {
       onSelect(999);
     } else {
       onSelect(-1);
     }
-  }, [input, onSelect]);
+  }, [input]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Garante que o campo comece sempre vazio
   useEffect(() => {
     setInput("");
   }, [challenge.id]);
@@ -91,17 +73,11 @@ export const ListenAndType = ({
 
   return (
     <div className="space-y-8 px-4">
-      <div className="text-center">
-        <p className="text-2xl font-medium text-neutral-700 mb-4">
-          Listen and type what you hear
-        </p>
-      </div>
-
       <div className="flex justify-center">
         <button
           onClick={playAudio}
           disabled={disabled || status !== "none"}
-          className="flex h-28 w-28 items-center justify-center rounded-full bg-green-500 text-white shadow-2xl hover:scale-110 active:scale-95 transition-all disabled:bg-neutral-400"
+          className="flex h-28 w-28 items-center justify-center rounded-full bg-green-500 text-7xl shadow-2xl hover:scale-110 active:scale-95 transition-all disabled:bg-neutral-400"
         >
           🔊
         </button>
@@ -119,6 +95,7 @@ export const ListenAndType = ({
         placeholder="Type what you hear..."
         className="w-full rounded-2xl border-2 border-neutral-200 bg-white px-6 py-5 text-2xl focus:border-green-500 focus:outline-none disabled:bg-neutral-100"
         disabled={disabled || status !== "none"}
+        autoFocus
       />
     </div>
   );

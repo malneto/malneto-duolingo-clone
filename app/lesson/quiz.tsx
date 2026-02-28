@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ import { ListenAndType } from "./listen-and-type";
 import { Match } from "./match";
 import { Speak } from "./speak";
 import { Video } from "./video";
-import { MESSAGES } from "@/constants/messages";   // ← Import adicionado
+import { MESSAGES } from "@/constants/messages";
 
 type QuizProps = {
   initialPercentage: number;
@@ -42,9 +42,11 @@ type QuizProps = {
         isActive: boolean;
       })
     | null;
-
-  currentStreak?: number;     // ← ADICIONE ESTA LINHA
+  currentStreak?: number;
 };
+
+// Tipos de challenge que fazem validação interna (input de texto)
+const TEXT_INPUT_TYPES = ["TRANSLATE", "FILL_IN_BLANK", "LISTEN_AND_TYPE"];
 
 export const Quiz = ({
   initialPercentage,
@@ -52,18 +54,11 @@ export const Quiz = ({
   initialLessonId,
   initialLessonChallenges,
   userSubscription,
-  currentStreak = 0,          // ← ADICIONE ESTA LINHA (valor padrão)
+  currentStreak = 0,
 }: QuizProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [incorrectAudio, _i, incorrectControls] = useAudio({
-    src: "/incorrect.wav",
-  });
-  const [finishAudio] = useAudio({
-    src: "/finish.mp3",
-    autoPlay: true,
-  });
+  const [incorrectAudio, _i, incorrectControls] = useAudio({ src: "/incorrect.wav" });
+  const [finishAudio] = useAudio({ src: "/finish.mp3", autoPlay: true });
   const { width, height } = useWindowSize();
 
   const router = useRouter();
@@ -71,25 +66,24 @@ export const Quiz = ({
   const { open: openHeartsModal } = useHeartsModal();
   const { open: openPracticeModal } = usePracticeModal();
 
+  // Ref que os componentes de texto registram seu submit handler
+  const textSubmitRef = useRef<(() => void) | null>(null);
+
   useMount(() => {
     if (initialPercentage === 100) openPracticeModal();
   });
 
   const [lessonId] = useState(initialLessonId);
   const [hearts, setHearts] = useState(initialHearts);
-  const [percentage, setPercentage] = useState(() => {
-    return initialPercentage === 100 ? 0 : initialPercentage;
-  });
-  
-  // Ordena os desafios pela coluna "order" do banco
-const sortedChallenges = [...initialLessonChallenges].sort((a, b) => a.order - b.order);
-const [challenges] = useState(sortedChallenges);
-  
-  const [activeIndex, setActiveIndex] = useState(() => {
-    const uncompletedIndex = challenges.findIndex(
-      (challenge) => !challenge.completed
-    );
+  const [percentage, setPercentage] = useState(() =>
+    initialPercentage === 100 ? 0 : initialPercentage
+  );
 
+  const sortedChallenges = [...initialLessonChallenges].sort((a, b) => a.order - b.order);
+  const [challenges] = useState(sortedChallenges);
+
+  const [activeIndex, setActiveIndex] = useState(() => {
+    const uncompletedIndex = challenges.findIndex((c) => !c.completed);
     return uncompletedIndex === -1 ? 0 : uncompletedIndex;
   });
 
@@ -98,9 +92,9 @@ const [challenges] = useState(sortedChallenges);
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
+  const isTextInputChallenge = TEXT_INPUT_TYPES.includes(challenge?.type as string);
 
-
-  // === PROTEÇÃO FORTE: Evita qualquer renderização quando a lição termina ===
+  // Tela de conclusão
   if (!challenge) {
     return (
       <>
@@ -115,7 +109,7 @@ const [challenges] = useState(sortedChallenges);
         <div className="mx-auto flex h-full max-w-lg flex-col items-center justify-center gap-y-4 text-center lg:gap-y-8">
           <Image src="/finish.svg" alt="Finish" height={120} width={120} />
           <h1 className="text-2xl font-bold text-neutral-700 lg:text-4xl text-center">
-            {MESSAGES.greatJob} <br/> {MESSAGES.youCompletedTheLesson}
+            {MESSAGES.greatJob} <br /> {MESSAGES.youCompletedTheLesson}
           </h1>
           <div className="flex w-full items-center gap-x-4">
             <ResultCard variant="points" value={challenges.length * 10} />
@@ -125,7 +119,6 @@ const [challenges] = useState(sortedChallenges);
             />
           </div>
         </div>
-
         <Footer
           lessonId={lessonId}
           status="completed"
@@ -135,92 +128,123 @@ const [challenges] = useState(sortedChallenges);
     );
   }
 
-  const onNext = () => {
-    setActiveIndex((current) => current + 1);
-  };
+  const onNext = () => setActiveIndex((current) => current + 1);
 
   const onSelect = (id: number) => {
     if (status !== "none") return;
-
     setSelectedOption(id);
   };
 
+  // Chamado após validação interna dos componentes de texto
+  const handleTextResult = (isCorrect: boolean) => {
+    const correctOpt = options.find((o) => o.correct);
+    if (!correctOpt) return;
+
+    if (isCorrect) {
+      startTransition(() => {
+        upsertChallengeProgress(challenge.id)
+          .then((response) => {
+            if (response?.error === "hearts") { openHeartsModal(); return; }
+            void correctControls.play();
+            setStatus("correct");
+            setPercentage((prev) => prev + 100 / challenges.length);
+            if (initialPercentage === 100) {
+              setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
+            }
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
+      });
+    } else {
+      startTransition(() => {
+        reduceHearts(challenge.id)
+          .then((response) => {
+            if (response?.error === "hearts") { openHeartsModal(); return; }
+            void incorrectControls.play();
+            setStatus("wrong");
+            if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
+      });
+    }
+  };
+
   const onContinue = () => {
-  
-  // Lógica padrão para os outros tipos (SELECT, ASSIST, MATCH, SPEAK, VIDEO)
-  if (!selectedOption && status === "none") return;
+    if (status === "wrong") {
+      setStatus("none");
+      setSelectedOption(undefined);
+      return;
+    }
 
-  if (status === "wrong") {
-    setStatus("none");
-    setSelectedOption(undefined);
-    return;
-  }
+    if (status === "correct") {
+      onNext();
+      setStatus("none");
+      setSelectedOption(undefined);
+      return;
+    }
 
-  if (status === "correct") {
-    onNext();
-    setStatus("none");
-    setSelectedOption(undefined);
-    return;
-  }
+    // Challenges de texto: delega ao submit interno do componente filho
+    if (isTextInputChallenge) {
+      if (textSubmitRef.current) {
+        textSubmitRef.current();
+      }
+      return;
+    }
 
-  const correctOption = options.find((option) => option.correct);
+    // Challenges de seleção normais (SELECT, ASSIST, MATCH, SPEAK, VIDEO)
+    if (!selectedOption) return;
 
-  if (!correctOption) return;
+    const correctOpt = options.find((o) => o.correct);
+    if (!correctOpt) return;
 
-  if (correctOption.id === selectedOption) {
-    startTransition(() => {
-      upsertChallengeProgress(challenge.id)
-        .then((response) => {
-          if (response?.error === "hearts") {
-            openHeartsModal();
-            return;
-          }
+    if (correctOpt.id === selectedOption) {
+      startTransition(() => {
+        upsertChallengeProgress(challenge.id)
+          .then((response) => {
+            if (response?.error === "hearts") { openHeartsModal(); return; }
+            void correctControls.play();
+            setStatus("correct");
+            setPercentage((prev) => prev + 100 / challenges.length);
+            if (initialPercentage === 100) {
+              setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
+            }
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
+      });
+    } else {
+      startTransition(() => {
+        reduceHearts(challenge.id)
+          .then((response) => {
+            if (response?.error === "hearts") { openHeartsModal(); return; }
+            void incorrectControls.play();
+            setStatus("wrong");
+            if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
+      });
+    }
+  };
 
-          void correctControls.play();
-          setStatus("correct");
-          setPercentage((prev) => prev + 100 / challenges.length);
+  const title =
+    (challenge.type as string) === "ASSIST"
+      ? "Select the correct answer:"
+      : (challenge.type as string) === "VIDEO"
+      ? "Watch the video and answer:"
+      : (challenge.type as string) === "SPEAK"
+      ? "Speak out loud:"
+      : (challenge.type as string) === "LISTEN_AND_TYPE"
+      ? "Listen and type what you hear:"
+      : (challenge.type as string) === "MATCH"
+      ? "Match the pairs:"
+      : challenge.question || "Choose the correct answer:";
 
-          if (initialPercentage === 100) {
-            setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
-          }
-        })
-        .catch(() => toast.error("Something went wrong. Please try again."));
-    });
-  } else {
-    startTransition(() => {
-      reduceHearts(challenge.id)
-        .then((response) => {
-          if (response?.error === "hearts") {
-            openHeartsModal();
-            return;
-          }
+  // Footer fica habilitado se:
+  // - challenge de texto: selectedOption === 999 (usuário digitou algo)
+  // - challenge de seleção: selectedOption está definido
+  // - status não é "none" (já respondeu, aguardando continuar)
+  const isFooterDisabled =
+    pending ||
+    (status === "none" && !selectedOption);
 
-          void incorrectControls.play();
-          setStatus("wrong");
-
-          if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
-        })
-        .catch(() => toast.error("Something went wrong. Please try again."));
-    });
-  }
-};
-
-const title = 
-  (challenge.type as string) === "ASSIST" 
-    ? "Select the correct answer:"
-    : (challenge.type as string) === "VIDEO" 
-    ? "Watch the video and answer:"
-    : (challenge.type as string) === "SPEAK" 
-    ? "Speak out loud:"
-    : (challenge.type as string) === "LISTEN_AND_TYPE" 
-    ? "Listen and type what you hear:"
-    : (challenge.type as string) === "MATCH" 
-    ? "Match the pairs:"
-    : challenge.question || "Choose the correct answer:";
-
-
-
-      
   return (
     <>
       {incorrectAudio}
@@ -232,20 +256,17 @@ const title =
         hasActiveSubscription={!!userSubscription?.isActive}
       />
 
-    <div className="flex-1">
-    <div className="flex h-full items-center justify-center">
-    <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
-                  <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
+      <div className="flex-1">
+        <div className="flex h-full items-center justify-center">
+          <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
+            <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
               {title}
             </h1>
 
             <div>
-              {/* === ASSIST === */}
               {(challenge.type as string) === "ASSIST" && (
                 <>
                   <QuestionBubble question={challenge.question} />
-
-                  {/* Botão de áudio */}
                   <div className="flex justify-center mt-8">
                     <button
                       onClick={() => {
@@ -253,9 +274,7 @@ const title =
                           .replace(/Escute e escolha:?\s*/i, "")
                           .replace(/Escute:?\s*/i, "")
                           .trim();
-
                         if (!textToSpeak) return;
-
                         const utterance = new SpeechSynthesisUtterance(textToSpeak);
                         utterance.lang = "en-US";
                         utterance.rate = 0.92;
@@ -264,13 +283,10 @@ const title =
                         window.speechSynthesis.speak(utterance);
                       }}
                       className="flex h-24 w-24 items-center justify-center rounded-full bg-green-500 text-white text-7xl shadow-2xl hover:scale-110 active:scale-95 transition-all"
-                      title="Ouvir a frase"
                     >
                       🔊
                     </button>
                   </div>
-
-                  {/* AS 4 OPÇÕES DE RESPOSTA (IMPORTANTE!) */}
                   <Challenge
                     options={options}
                     onSelect={onSelect}
@@ -282,7 +298,6 @@ const title =
                 </>
               )}
 
-              {/* SELECT */}
               {(challenge.type as string) === "SELECT" && (
                 <Challenge
                   options={options}
@@ -294,41 +309,45 @@ const title =
                 />
               )}
 
-              {/* TRANSLATE */}
               {(challenge.type as string) === "TRANSLATE" && (
                 <Translate
+                  key={challenge.id}
                   challenge={challenge}
                   onSelect={onSelect}
                   status={status}
                   selectedOption={selectedOption}
                   disabled={pending}
+                  onResult={handleTextResult}
+                  registerSubmit={(fn) => { textSubmitRef.current = fn; }}
                 />
               )}
 
-              {/* FILL_IN_BLANK */}
               {(challenge.type as string) === "FILL_IN_BLANK" && (
                 <FillInBlank
+                  key={challenge.id}
                   challenge={challenge}
                   onSelect={onSelect}
                   status={status}
                   selectedOption={selectedOption}
                   disabled={pending}
+                  onResult={handleTextResult}
+                  registerSubmit={(fn) => { textSubmitRef.current = fn; }}
                 />
               )}
 
-              {/* LISTEN_AND_TYPE */}
               {(challenge.type as string) === "LISTEN_AND_TYPE" && (
                 <ListenAndType
-                key={challenge.id}          // ← ADICIONE ESTA LINHA
-                challenge={challenge}
-                onSelect={onSelect}
-                status={status}
-                selectedOption={selectedOption}
-                disabled={pending}
-              />
+                  key={challenge.id}
+                  challenge={challenge}
+                  onSelect={onSelect}
+                  status={status}
+                  selectedOption={selectedOption}
+                  disabled={pending}
+                  onResult={handleTextResult}
+                  registerSubmit={(fn) => { textSubmitRef.current = fn; }}
+                />
               )}
 
-              {/* MATCH */}
               {(challenge.type as string) === "MATCH" && (
                 <Match
                   challenge={challenge}
@@ -338,7 +357,6 @@ const title =
                 />
               )}
 
-              {/* SPEAK */}
               {(challenge.type as string) === "SPEAK" && (
                 <Speak
                   challenge={challenge}
@@ -348,7 +366,6 @@ const title =
                 />
               )}
 
-              {/* VIDEO */}
               {(challenge.type as string) === "VIDEO" && (
                 <Video
                   challenge={challenge}
@@ -358,19 +375,13 @@ const title =
                   disabled={pending}
                 />
               )}
-
             </div>
-     </div>
-    </div>
-    </div>
-
-
-
-
-
+          </div>
+        </div>
+      </div>
 
       <Footer
-        disabled={pending || !selectedOption}
+        disabled={isFooterDisabled}
         status={status}
         onCheck={onContinue}
       />
