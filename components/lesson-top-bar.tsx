@@ -47,13 +47,6 @@ export const LessonTopBar = ({
           <span className="text-2xl">🔥</span>
           <span className="font-bold text-lg text-orange-500">{currentStreak}</span>
         </div>
-
-        {/* Maçã (Poder) - placeholder */}
-        <div className="flex items-center gap-1">
-          <span className="text-2xl">🍎</span>
-          <span className="font-bold text-lg text-red-500">0</span>
-        </div>
-
       </div>
     </div>
   );
