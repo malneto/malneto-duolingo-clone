@@ -41,9 +41,14 @@ const LearnPage = async () => {
     userSubscriptionData,
   ]);
 
-  // Trigger xAI lessons check
+  // Trigger xAI lessons check - Tratamento de erro para evitar SyntaxError ao parsear resposta inválida
   const checkLessonsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/check-lessons`, { cache: 'no-store' });
-  const checkLessons = await checkLessonsRes.json();
+  let checkLessons = { success: false, message: "Check failed" };
+  if (checkLessonsRes.ok) {
+    checkLessons = await checkLessonsRes.json();
+  } else {
+    console.error("Check lessons API failed:", checkLessonsRes.status, await checkLessonsRes.text());
+  }
   console.log('[Fera /learn] Lessons check:', checkLessons);
 
   if (!courseProgress || !userProgress || !userProgress.activeCourse)
