@@ -1,15 +1,51 @@
-import { FC, ReactNode } from 'react';
+import { FC } from "react";
 
 interface UnitDividerProps {
-  children: ReactNode;
+  children: React.ReactNode;
+  nextUnitOrder?: number;
 }
 
-export const UnitDivider: FC<UnitDividerProps> = ({ children }) => (
-  <div className="my-12 flex items-center">
-    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-    <span className="px-8 py-3 text-lg font-semibold text-gray-500 bg-white shadow-sm rounded-full mx-[-12px] z-10 border border-gray-200">
-      {children}
-    </span>
-    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-  </div>
-);
+const SECTION_THEMES = [
+  { bg: "from-amber-100 to-orange-100", border: "border-amber-300", text: "text-amber-700", emoji: "🏆" },
+  { bg: "from-sky-100 to-blue-100",     border: "border-sky-300",   text: "text-sky-700",   emoji: "🌊" },
+  { bg: "from-green-100 to-emerald-100",border: "border-green-300", text: "text-green-700", emoji: "🌲" },
+  { bg: "from-rose-100 to-pink-100",    border: "border-rose-300",  text: "text-rose-700",  emoji: "🌸" },
+  { bg: "from-violet-100 to-purple-100",border: "border-violet-300",text: "text-violet-700",emoji: "💜" },
+];
+
+export const UnitDivider: FC<UnitDividerProps> = ({ children, nextUnitOrder = 1 }) => {
+  const theme = SECTION_THEMES[(nextUnitOrder - 1) % SECTION_THEMES.length];
+
+  return (
+    <div className="my-10 flex flex-col items-center gap-3">
+      {/* Dotted trail connecting line */}
+      <div className="flex flex-col items-center gap-1.5">
+        {[0,1,2].map(i => (
+          <div key={i} className="h-2 w-2 rounded-full bg-slate-300" />
+        ))}
+      </div>
+
+      {/* Section label pill */}
+      <div
+        className={`
+          flex items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3
+          border-2 ${theme.border} ${theme.bg}
+          shadow-md
+        `}
+      >
+        <span className="text-xl">{theme.emoji}</span>
+        <span className={`text-sm font-extrabold tracking-wide uppercase ${theme.text}`}>
+          {children}
+        </span>
+        <span className="text-xl">{theme.emoji}</span>
+      </div>
+
+      {/* Dotted trail connecting line */}
+      <div className="flex flex-col items-center gap-1.5">
+        {[0,1,2].map(i => (
+          <div key={i} className="h-2 w-2 rounded-full bg-slate-300" />
+        ))}
+      </div>
+    </div>
+  );
+};

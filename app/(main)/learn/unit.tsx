@@ -1,14 +1,10 @@
 import { lessons, units } from "@/db/schema";
-
 import { LessonButton } from "./lesson-button";
 
 type UnitProps = {
   id: number;
   order: number;
   title: string;
-  // description removed
-  // icon removed
-
   lessons: Array<{
     id: number;
     title: string;
@@ -17,7 +13,6 @@ type UnitProps = {
     subject?: string | null;
     unitId?: number;
   }>;
-
   activeLesson:
     | (typeof lessons.$inferSelect & {
         unit: typeof units.$inferSelect;
@@ -25,6 +20,26 @@ type UnitProps = {
     | undefined;
   activeLessonPercentage: number;
 };
+
+// SVG trail path connecting lessons visually
+const TrailPath = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+    <svg
+      className="absolute left-1/2 top-0 -translate-x-1/2 opacity-20"
+      width="4"
+      height="100%"
+      preserveAspectRatio="none"
+    >
+      <line
+        x1="2" y1="0" x2="2" y2="100%"
+        stroke="#86efac"
+        strokeWidth="4"
+        strokeDasharray="12 8"
+        strokeLinecap="round"
+      />
+    </svg>
+  </div>
+);
 
 export const Unit = ({
   id,
@@ -35,7 +50,8 @@ export const Unit = ({
   activeLessonPercentage,
 }: UnitProps) => {
   return (
-    <div className="relative flex flex-col items-center">
+    <div className="relative flex flex-col items-center min-h-[100px]">
+      <TrailPath />
       {lessons.map((lesson, i) => {
         const isCurrent = lesson.id === activeLesson?.id;
         const isLocked = !lesson.completed && !isCurrent;
