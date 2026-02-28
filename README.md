@@ -356,3 +356,6 @@ You can also give this repository a star to show more people and they can use th
 <br />
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 teste
+
+## Teste Workflow Fera
+- Mudança mínima para validar build/commit/push Vercel (2026-02-27).
