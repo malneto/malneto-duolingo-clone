@@ -6,11 +6,10 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type BottomNavigationProps = {
-  courseIcon?: string;        // ← Ícone do curso atual (bandeira, emoji, etc.)
   className?: string;
 };
 
-export const BottomNavigation = ({ courseIcon = "🇬🇧", className }: BottomNavigationProps) => {
+export const BottomNavigation = ({ className }: BottomNavigationProps) => {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
@@ -19,11 +18,6 @@ export const BottomNavigation = ({ courseIcon = "🇬🇧", className }: BottomN
     <div className={cn("fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 lg:hidden", className)}>
       <div className="flex items-center justify-around py-2 max-w-[1140px] mx-auto">
         
-        {/* ÍCONE DO CURSO ATUAL - Clica em /courses */}
-        <Link href="/courses" className="flex flex-col items-center py-1 px-6">
-          <div className="text-3xl">{courseIcon}</div>
-        </Link>
-
         {/* APRENDER */}
         <Link href="/learn" className={`flex flex-col items-center py-1 px-6 ${isActive('/learn') ? 'opacity-100' : 'opacity-60'}`}>
           <Image src="/learn.svg" alt="Aprender" width={32} height={32} />
