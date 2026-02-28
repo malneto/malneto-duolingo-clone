@@ -10,12 +10,9 @@ import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { Items } from "./items";
 
 const ShopPage = async () => {
-  const userProgressData = getUserProgress();
-  const userSubscriptionData = getUserSubscription();
-
   const [userProgress, userSubscription] = await Promise.all([
-    userProgressData,
-    userSubscriptionData,
+    getUserProgress(),
+    getUserSubscription(),
   ]);
 
   if (!userProgress || !userProgress.activeCourse) redirect("/courses");
@@ -31,20 +28,30 @@ const ShopPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
-
         <Quests points={userProgress.points} />
       </StickyWrapper>
 
       <FeedWrapper>
         <div className="flex w-full flex-col items-center">
-          <Image src="/shop.svg" alt="Shop" height={90} width={90} />
 
-          <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
-            Shop
+          {/* Icon with glow */}
+          <div className="relative flex items-center justify-center">
+            <div
+              className="absolute h-24 w-24 rounded-full opacity-30 blur-2xl"
+              style={{ background: "radial-gradient(circle, #8b5cf6, transparent)" }}
+            />
+            <Image src="/shop.svg" alt="Shop" height={90} width={90} className="relative drop-shadow-lg" />
+          </div>
+
+          <h1 className="my-5 text-center text-2xl font-extrabold text-white">
+            🛸 Loja Galáctica
           </h1>
-          <p className="mb-6 text-center text-lg text-muted-foreground">
-            Spend your points on cool stuff.
+          <p className="mb-6 text-center text-sm font-semibold uppercase tracking-widest text-indigo-300">
+            Troque seus XP por poderes espaciais
           </p>
+
+          {/* Divider */}
+          <div className="mb-6 h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent)" }} />
 
           <Items
             hearts={userProgress.hearts}
