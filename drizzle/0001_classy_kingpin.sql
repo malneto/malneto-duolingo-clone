@@ -1,0 +1,1 @@
+ALTER TABLE "user_progress" ADD COLUMN "last_lesson_generated_at" timestamp;

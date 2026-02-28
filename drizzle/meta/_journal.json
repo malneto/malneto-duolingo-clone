@@ -8,6 +8,13 @@
       "when": 1772310891342,
       "tag": "0000_goofy_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772314419686,
+      "tag": "0001_classy_kingpin",
+      "breakpoints": true
     }
   ]
 }

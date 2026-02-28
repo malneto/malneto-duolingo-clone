@@ -11,16 +11,15 @@ import {
   challengeProgress,
   challenges,
   userProgress,
-  units,
-  lessons,
 } from "@/db/schema";
 import { cefrBand } from "@/lib/cefr";
 import { updateStudentLevel } from "@/lib/student-level";
 import { generateLessons, getOrCreateActiveUnit } from "@/lib/generate-lessons";
 
 // ─── Constants ─────────────────────────────────────────────────────────────
-// Minimum pending lessons before we trigger generation
 const GENERATION_THRESHOLD = 2;
+// Minimum minutes between generation runs per user
+const GENERATION_COOLDOWN_MINUTES = 10;
 
 // ─── Streak decay ──────────────────────────────────────────────────────────
 function calcStreakDecay(currentStreak: number, daysInactive: number): number {
@@ -41,7 +40,7 @@ function daysBetween(dateA: string, dateB: string): number {
   return Math.round(Math.abs(a - b) / (1000 * 60 * 60 * 24));
 }
 
-// ─── Count pending lessons for the active course ───────────────────────────
+// ─── Count pending lessons ─────────────────────────────────────────────────
 async function countPendingLessons(
   userId: string,
   courseId: number
@@ -61,27 +60,51 @@ async function countPendingLessons(
   return Number(result.rows[0]?.count ?? 0);
 }
 
-// ─── Trigger lesson generation if needed (non-blocking) ───────────────────
-// Runs in background — does NOT await so it doesn't slow down the response.
+// ─── Check cooldown ────────────────────────────────────────────────────────
+// Returns true if enough time has passed since last generation.
+function isCooldownExpired(lastGeneratedAt: Date | null | undefined): boolean {
+  if (!lastGeneratedAt) return true;
+  const minutesSince =
+    (Date.now() - new Date(lastGeneratedAt).getTime()) / (1000 * 60);
+  return minutesSince >= GENERATION_COOLDOWN_MINUTES;
+}
+
+// ─── Trigger lesson generation in background ───────────────────────────────
 function triggerLessonGenerationIfNeeded(
   userId: string,
   courseId: number,
-  cefrLevel: string
+  cefrLevel: string,
+  lastGeneratedAt: Date | null | undefined
 ): void {
-  // Fire and forget — errors are logged but don't affect the user
+  // Already generated recently — skip
+  if (!isCooldownExpired(lastGeneratedAt)) return;
+
   (async () => {
     try {
       const pending = await countPendingLessons(userId, courseId);
       if (pending >= GENERATION_THRESHOLD) return;
 
+      // Stamp the generation time BEFORE calling Claude to prevent
+      // concurrent calls from also passing the cooldown check
+      await db
+        .update(userProgress)
+        .set({ lastLessonGeneratedAt: new Date() })
+        .where(eq(userProgress.userId, userId));
+
       const currentBand = cefrBand(cefrLevel);
       const unitId = await getOrCreateActiveUnit(userId, courseId, currentBand);
       await generateLessons(userId, unitId);
 
-      // Revalidate so new lessons appear immediately on next navigation
       revalidatePath("/learn");
+      console.log(`[lesson-generation] Generated 4 lessons for user ${userId}`);
     } catch (err) {
       console.error("[lesson-generation] background error:", err);
+      // On error, reset the timestamp so the next attempt can retry
+      await db
+        .update(userProgress)
+        .set({ lastLessonGeneratedAt: null })
+        .where(eq(userProgress.userId, userId))
+        .catch(() => {}); // swallow — best effort
     }
   })();
 }
@@ -180,21 +203,20 @@ export const upsertChallengeProgress = async (
       .where(eq(userProgress.userId, userId));
   }
 
-  // ── Update adaptive CEFR level ────────────────────────────────────────────
-  // Always correct here (wrong answers go through reduceHearts, not here)
+  // ── Update adaptive CEFR level + trigger generation ───────────────────────
   if (currentUserProgress.activeCourseId) {
     await updateStudentLevel(
       userId,
       challengeId,
-      true, // correct answer
+      true,
       timeSpentSeconds ?? 30
     );
 
-    // ── Trigger lesson generation in background ─────────────────────────────
     triggerLessonGenerationIfNeeded(
       userId,
       currentUserProgress.activeCourseId,
-      currentUserProgress.cefrLevel ?? "A1.1"
+      currentUserProgress.cefrLevel ?? "A1.1",
+      currentUserProgress.lastLessonGeneratedAt  // cooldown guard
     );
   }
 

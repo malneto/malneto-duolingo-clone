@@ -54,7 +54,6 @@ export const units = pgTable("units", {
   title: text("title").notNull(),
   description: text("description"),
   order: integer("order").notNull(),
-  // NEW: subject and CEFR level for the whole unit
   subject: text("subject"),
   cefrLevel: text("cefr_level"),
 });
@@ -80,9 +79,8 @@ export const lessons = pgTable("lessons", {
     .notNull(),
   subject: text("subject"),
   order: integer("order").notNull(),
-  // NEW
-  level: text("level"),           // e.g. "B1.2"
-  tags: text("tags").array(),     // e.g. ["restaurant","food"]
+  level: text("level"),
+  tags: text("tags").array(),
 });
 
 export const lessonsRelations = relations(lessons, ({ one, many }) => ({
@@ -94,7 +92,6 @@ export const lessonsRelations = relations(lessons, ({ one, many }) => ({
 }));
 
 // ─── Challenges ───────────────────────────────────────────────────────────
-// Expanded enum with all supported challenge types
 export const challengesEnum = pgEnum("type", [
   "SELECT",
   "ASSIST",
@@ -113,10 +110,8 @@ export const challenges = pgTable("challenges", {
   type: challengesEnum("type").notNull(),
   question: text("question").notNull(),
   order: integer("order").notNull(),
-  // Changed from integer to text for CEFR strings like "B1.2"
   level: text("level"),
   skill_type: text("skill_type"),
-  // NEW
   tags: text("tags").array(),
   estimatedTimeSeconds: integer("estimated_time_seconds").default(30),
 });
@@ -184,13 +179,15 @@ export const userProgress = pgTable("user_progress", {
   }),
   hearts: integer("hearts").notNull().default(MAX_HEARTS),
   points: integer("points").notNull().default(0),
-  // Streak fields
+  // Streak
   currentStreak: integer("current_streak").notNull().default(0),
   longestStreak: integer("longest_streak").notNull().default(0),
   lastActivityDate: date("last_activity_date"),
-  // NEW: CEFR adaptive level
+  // CEFR adaptive level
   cefrLevel: text("cefr_level").default("A1.1"),
   cefrLevelFloat: real("cefr_level_float").default(1.1),
+  // Generation cooldown — prevents duplicate AI generation bursts
+  lastLessonGeneratedAt: timestamp("last_lesson_generated_at"),
 });
 
 export const userProgressRelations = relations(userProgress, ({ one }) => ({
@@ -222,7 +219,6 @@ export const user_challenge_history = pgTable("user_challenge_history", {
   completedAt: timestamp("completed_at").defaultNow(),
   correct: boolean("correct").notNull(),
   xpEarned: integer("xp_earned").default(0),
-  // NEW: for adaptive level calculation
   timeSpentSeconds: integer("time_spent_seconds"),
 });
 
