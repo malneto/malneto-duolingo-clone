@@ -6,7 +6,6 @@ import { ExitModal } from "@/components/modals/exit-modal";
 import { HeartsModal } from "@/components/modals/hearts-modal";
 import { PracticeModal } from "@/components/modals/practice-modal";
 import { Toaster } from "@/components/ui/sonner";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { siteConfig } from "@/config";
 
 import "./globals.css";
@@ -43,7 +42,6 @@ export default function RootLayout({
           <HeartsModal />
           <PracticeModal />
           {children}
-<BottomNavigation className="lg:hidden" />
         </body>
       </html>
     </ClerkProvider>
