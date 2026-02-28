@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import db from "@/db/drizzle";
-import { challenges, user_progress, user_challenge_history } from "@/db/schema";
+import { challenges, userProgress, user_challenge_history } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
 export async function GET() {
@@ -11,8 +11,8 @@ export async function GET() {
   }
 
   // Busca ou cria progresso do usuário
-  let userProgress = await db.query.user_progress.findFirst({
-    where: eq(user_progress.userId, userId),
+  let userProgress = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
   });
 
   if (!userProgress) {

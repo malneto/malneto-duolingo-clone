@@ -184,20 +184,9 @@ export const userSubscription = pgTable("user_subscription", {
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
 
-// ==================== NOVAS TABELAS PARA SISTEMA DINÂMICO ====================
-
-export const user_progress = pgTable("user_progress", {
-  userId: text("user_id").primaryKey(),           // Clerk user ID
-  current_level: integer("current_level").default(1).notNull(),
-  daily_lessons_completed: integer("daily_lessons_completed").default(0).notNull(),
-  last_lesson_date: date("last_lesson_date"),
-  hearts: integer("hearts").default(5).notNull(),
-  xp: integer("xp").default(0).notNull(),
-});
-
 export const user_challenge_history = pgTable("user_challenge_history", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").notNull().references(() => user_progress.userId, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => userProgress.userId, { onDelete: "cascade" }),
   challengeId: integer("challenge_id").notNull().references(() => challenges.id, { onDelete: "cascade" }),
   completedAt: timestamp("completed_at").defaultNow(),
   correct: boolean("correct").notNull(),

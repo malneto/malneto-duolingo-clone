@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { eq, sql } from 'drizzle-orm';
 import db from '@/db/drizzle';
-import { lessons, challenges, challengeOptions, user_progress, units, user_challenge_history } from '@/db/schema';
+import { lessons, challenges, challengeOptions, userProgress, units, user_challenge_history } from '@/db/schema';
 
 export const GET = async () => {
   try {
@@ -70,7 +70,7 @@ export const GET = async () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'grok-4-1-fast',
+          model: 'grok-3-fast',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.7,
         }),
@@ -117,7 +117,6 @@ export const GET = async () => {
             challengeId: newCh.id,
             text: options[j],
             correct: options[j] === ch.correct,
-            order: j,
           });
         }
       }
