@@ -10,10 +10,10 @@ type BottomNavigationProps = {
 };
 
 const NAV_ITEMS = [
-  { href: "/learn",       src: "/learn.svg",       alt: "Aprender"     },
+  { href: "/learn",       src: "/learn.svg",       alt: "Aprender"      },
   { href: "/leaderboard", src: "/leaderboard.svg",  alt: "Classificação" },
-  { href: "/quests",      src: "/quests.svg",       alt: "Missões"      },
-  { href: "/shop",        src: "/shop.svg",         alt: "Loja"         },
+  { href: "/quests",      src: "/quests.svg",       alt: "Missões"       },
+  { href: "/shop",        src: "/shop.svg",         alt: "Loja"          },
 ];
 
 export const BottomNavigation = ({ className }: BottomNavigationProps) => {
@@ -23,8 +23,8 @@ export const BottomNavigation = ({ className }: BottomNavigationProps) => {
     <div
       className={cn("fixed bottom-0 left-0 right-0 z-50 lg:hidden", className)}
       style={{
-        background: "rgba(10,14,26,0.95)",
-        borderTop: "1px solid rgba(99,102,241,0.25)",
+        background: "rgba(10,14,26,0.97)",
+        borderTop: "1px solid rgba(99,102,241,0.3)",
         backdropFilter: "blur(16px)",
       }}
     >
@@ -38,19 +38,26 @@ export const BottomNavigation = ({ className }: BottomNavigationProps) => {
               className="flex flex-col items-center gap-0.5 px-6 py-1 transition-all duration-150 active:scale-90"
             >
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150"
+                className="flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-150"
                 style={{
-                  background: isActive ? "rgba(99,102,241,0.2)" : "transparent",
-                  border: isActive ? "1px solid rgba(99,102,241,0.5)" : "1px solid transparent",
-                  boxShadow: isActive ? "0 0 12px rgba(99,102,241,0.3)" : "none",
+                  background: isActive ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.05)",
+                  border: isActive
+                    ? "1.5px solid rgba(99,102,241,0.6)"
+                    : "1.5px solid rgba(255,255,255,0.08)",
+                  boxShadow: isActive ? "0 0 14px rgba(99,102,241,0.4)" : "none",
                 }}
               >
                 <Image
                   src={src}
                   alt={alt}
-                  width={24}
-                  height={24}
-                  style={{ opacity: isActive ? 1 : 0.45, filter: isActive ? "drop-shadow(0 0 4px rgba(99,102,241,0.6))" : "none" }}
+                  width={26}
+                  height={26}
+                  style={{
+                    opacity: isActive ? 1 : 0.75,
+                    filter: isActive
+                      ? "drop-shadow(0 0 5px rgba(99,102,241,0.8)) brightness(1.2)"
+                      : "brightness(1.1)",
+                  }}
                 />
               </div>
             </Link>
