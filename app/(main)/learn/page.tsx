@@ -41,6 +41,11 @@ const LearnPage = async () => {
     userSubscriptionData,
   ]);
 
+  // Trigger xAI lessons check
+  const checkLessonsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/check-lessons`, { cache: 'no-store' });
+  const checkLessons = await checkLessonsRes.json();
+  console.log('[Fera /learn] Lessons check:', checkLessons);
+
   if (!courseProgress || !userProgress || !userProgress.activeCourse)
     redirect("/courses");
 
