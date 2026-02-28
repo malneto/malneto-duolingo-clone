@@ -1,65 +1,52 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 
-type UnitBannerProps = {
-  unitOrder: number;
-  totalUnits: number;
-  title: string;
-};
+type UnitBannerProps = { unitOrder: number; totalUnits: number; title: string };
 
-// Color themes per unit (cycles)
-const UNIT_THEMES = [
-  { from: "#FF6B35", to: "#FF9500", shadow: "rgba(255,107,53,0.4)" },   // orange fire
-  { from: "#4FACFE", to: "#00F2FE", shadow: "rgba(79,172,254,0.4)" },   // ocean blue
-  { from: "#43E97B", to: "#38F9D7", shadow: "rgba(67,233,123,0.4)" },   // fresh green
-  { from: "#FA709A", to: "#FEE140", shadow: "rgba(250,112,154,0.4)" },  // sunset
-  { from: "#A18CD1", to: "#FBC2EB", shadow: "rgba(161,140,209,0.4)" },  // lavender
+const PLANET_THEMES = [
+  { from: "#7c3aed", to: "#4f46e5", glow: "rgba(124,58,237,0.4)", planet: "🪐", name: "Saturno" },
+  { from: "#0e7490", to: "#0284c7", glow: "rgba(14,116,144,0.4)", planet: "🌍", name: "Terra" },
+  { from: "#b45309", to: "#d97706", glow: "rgba(180,83,9,0.4)",   planet: "🔴", name: "Marte" },
+  { from: "#be185d", to: "#db2777", glow: "rgba(190,24,93,0.4)",  planet: "🌸", name: "Vênus" },
+  { from: "#065f46", to: "#059669", glow: "rgba(6,95,70,0.4)",    planet: "🌑", name: "Plutão" },
 ];
 
-const UNIT_EMOJIS = ["🗺️", "🌊", "🌲", "🌅", "🔮"];
-
-export const UnitBanner = ({
-  unitOrder,
-  totalUnits,
-  title,
-}: UnitBannerProps) => {
-  const themeIndex = (unitOrder - 1) % UNIT_THEMES.length;
-  const theme = UNIT_THEMES[themeIndex];
-  const emoji = UNIT_EMOJIS[themeIndex];
+export const UnitBanner = ({ unitOrder, totalUnits, title }: UnitBannerProps) => {
+  const t = PLANET_THEMES[(unitOrder - 1) % PLANET_THEMES.length];
 
   return (
     <div
-      className="sticky top-[56px] z-40 mx-auto mb-6 w-full max-w-[600px] rounded-3xl p-[2px]"
+      className="sticky top-[56px] z-40 mx-auto mb-8 w-full max-w-[600px] rounded-3xl p-px"
       style={{
-        background: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-        boxShadow: `0 8px 32px ${theme.shadow}, 0 2px 8px rgba(0,0,0,0.1)`,
+        background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
+        boxShadow: `0 8px 32px ${t.glow}, 0 0 0 1px rgba(255,255,255,0.05)`,
       }}
     >
-      <div className="flex items-center justify-between gap-4 rounded-[22px] bg-white/10 backdrop-blur-sm px-5 py-4">
-        {/* Left: emoji + text */}
+      <div
+        className="flex items-center justify-between gap-4 rounded-[22px] px-5 py-4"
+        style={{ background: "rgba(10,14,26,0.75)", backdropFilter: "blur(12px)" }}
+      >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div
-            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/25 text-2xl shadow-inner"
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-2xl"
+            style={{ background: `linear-gradient(135deg, ${t.from}44, ${t.to}44)`, border: `1px solid ${t.from}66` }}
           >
-            {emoji}
+            {t.planet}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/80">
-              Unidade {unitOrder} de {totalUnits}
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: `${t.from}cc` }}>
+              Planeta {t.name} · U{unitOrder}/{totalUnits}
             </p>
-            <h2 className="truncate text-lg font-extrabold text-white leading-tight drop-shadow-sm">
-              {title}
-            </h2>
+            <h2 className="truncate text-lg font-extrabold text-white leading-tight">{title}</h2>
           </div>
         </div>
 
-        {/* Right: guide button */}
         <Link href="/lesson" className="flex-shrink-0">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/25 text-white transition hover:bg-white/40 active:scale-95 shadow"
-            title="Guia da Unidade"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl transition hover:scale-110 active:scale-95"
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#94a3b8" }}
           >
-            <BookOpen className="h-5 w-5 stroke-[2.5]" />
+            <BookOpen className="h-5 w-5" />
           </button>
         </Link>
       </div>

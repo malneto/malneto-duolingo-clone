@@ -1,53 +1,28 @@
 import { InfinityIcon } from "lucide-react";
 import Image from "next/image";
-
 import { cn } from "@/lib/utils";
 
-type ResultCardProps = {
-  value: number;
-  variant: "points" | "hearts";
-};
+type ResultCardProps = { value: number; variant: "points" | "hearts" };
 
 export const ResultCard = ({ value, variant }: ResultCardProps) => {
-  const imageSrc = variant === "points" ? "/points.svg" : "/heart.svg";
+  const isPoints = variant === "points";
+  const color = isPoints ? "#fbbf24" : "#f87171";
+  const glow = isPoints ? "rgba(251,191,36,0.3)" : "rgba(248,113,113,0.3)";
+  const label = isPoints ? "⚡ Total XP" : "❤️ Vidas";
 
   return (
-    <div
-      className={cn(
-        "w-full rounded-2xl border-2",
-        variant === "points" && "border-orange-400 bg-orange-400",
-        variant === "hearts" && "border-rose-500 bg-rose-500"
-      )}
-    >
-      <div
-        className={cn(
-          "rounded-t-xl p-1.5 text-center text-xs font-bold uppercase text-white",
-          variant === "points" && "bg-orange-400",
-          variant === "hearts" && "bg-rose-500"
-        )}
-      >
-        {variant === "hearts" ? "Coração" : "Total XP"}
+    <div className="w-full rounded-2xl overflow-hidden"
+      style={{ border: `1.5px solid ${color}44`, boxShadow: `0 0 20px ${glow}` }}>
+      <div className="py-1.5 text-center text-xs font-extrabold uppercase tracking-widest"
+        style={{ background: `${color}22`, color }}>
+        {label}
       </div>
-
-      <div
-        className={cn(
-          "flex items-center justify-center rounded-2xl bg-white p-6 text-lg font-bold",
-          variant === "points" && "text-orange-400",
-          variant === "hearts" && "text-rose-500"
-        )}
-      >
-        <Image
-          src={imageSrc}
-          alt={variant}
-          height={30}
-          width={30}
-          className="mr-1.5"
-        />
-        {value === Infinity ? (
-          <InfinityIcon className="h-6 w-6 stroke-[3]" />
-        ) : (
-          value
-        )}
+      <div className="flex items-center justify-center gap-2 py-6"
+        style={{ background: "rgba(10,14,26,0.8)" }}>
+        <Image src={isPoints ? "/points.svg" : "/heart.svg"} alt={variant} height={28} width={28} />
+        <span className="text-2xl font-extrabold" style={{ color }}>
+          {value === Infinity ? <InfinityIcon className="h-7 w-7 stroke-[3]" /> : value}
+        </span>
       </div>
     </div>
   );

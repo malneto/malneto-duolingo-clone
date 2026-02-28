@@ -5,47 +5,43 @@ interface UnitDividerProps {
   nextUnitOrder?: number;
 }
 
-const SECTION_THEMES = [
-  { bg: "from-amber-100 to-orange-100", border: "border-amber-300", text: "text-amber-700", emoji: "🏆" },
-  { bg: "from-sky-100 to-blue-100",     border: "border-sky-300",   text: "text-sky-700",   emoji: "🌊" },
-  { bg: "from-green-100 to-emerald-100",border: "border-green-300", text: "text-green-700", emoji: "🌲" },
-  { bg: "from-rose-100 to-pink-100",    border: "border-rose-300",  text: "text-rose-700",  emoji: "🌸" },
-  { bg: "from-violet-100 to-purple-100",border: "border-violet-300",text: "text-violet-700",emoji: "💜" },
+const DIVIDER_THEMES = [
+  { color: "#a78bfa", label: "🪐 Nova Órbita" },
+  { color: "#22d3ee", label: "🌊 Novo Setor" },
+  { color: "#4ade80", label: "🌌 Nova Galáxia" },
+  { color: "#fb923c", label: "☄️ Nova Rota" },
+  { color: "#f472b6", label: "✨ Nova Missão" },
 ];
 
 export const UnitDivider: FC<UnitDividerProps> = ({ children, nextUnitOrder = 1 }) => {
-  const theme = SECTION_THEMES[(nextUnitOrder - 1) % SECTION_THEMES.length];
+  const t = DIVIDER_THEMES[(nextUnitOrder - 1) % DIVIDER_THEMES.length];
 
   return (
     <div className="my-10 flex flex-col items-center gap-3">
-      {/* Dotted trail connecting line */}
-      <div className="flex flex-col items-center gap-1.5">
-        {[0,1,2].map(i => (
-          <div key={i} className="h-2 w-2 rounded-full bg-slate-300" />
-        ))}
-      </div>
+      {/* Dotted trail */}
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: `${t.color}55`, animationDelay: `${i * 0.2}s` }} />
+      ))}
 
-      {/* Section label pill */}
+      {/* Asteroid belt divider */}
       <div
-        className={`
-          flex items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3
-          border-2 ${theme.border} ${theme.bg}
-          shadow-md
-        `}
+        className="flex items-center gap-3 rounded-full px-6 py-2.5"
+        style={{
+          background: `linear-gradient(135deg, ${t.color}15, ${t.color}08)`,
+          border: `1.5px solid ${t.color}44`,
+          boxShadow: `0 0 16px ${t.color}22`,
+        }}
       >
-        <span className="text-xl">{theme.emoji}</span>
-        <span className={`text-sm font-extrabold tracking-wide uppercase ${theme.text}`}>
+        <span className="text-base">{t.label}</span>
+        <span className="text-xs font-extrabold uppercase tracking-widest" style={{ color: t.color }}>
           {children}
         </span>
-        <span className="text-xl">{theme.emoji}</span>
+        <span className="text-base">🚀</span>
       </div>
 
-      {/* Dotted trail connecting line */}
-      <div className="flex flex-col items-center gap-1.5">
-        {[0,1,2].map(i => (
-          <div key={i} className="h-2 w-2 rounded-full bg-slate-300" />
-        ))}
-      </div>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: `${t.color}55`, animationDelay: `${i * 0.2}s` }} />
+      ))}
     </div>
   );
 };

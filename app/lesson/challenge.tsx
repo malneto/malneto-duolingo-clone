@@ -1,6 +1,5 @@
 import { challengeOptions, challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { Card } from "./card";
 
 type ChallengeProps = {
   options: (typeof challengeOptions.$inferSelect)[];
@@ -11,77 +10,38 @@ type ChallengeProps = {
   type: string;
 };
 
-// Cores vibrantes para cada opção — estilo Duolingo kids
-const CARD_COLORS = [
-  "border-[#58CC02] bg-[#f0fce8] hover:bg-[#e4fad0] text-[#2d7a00]",  // verde
-  "border-[#1CB0F6] bg-[#e8f8ff] hover:bg-[#d0f0ff] text-[#0077b6]",  // azul
-  "border-[#FF9600] bg-[#fff8e8] hover:bg-[#fff0d0] text-[#b36a00]",  // laranja
-  "border-[#FF4B4B] bg-[#fff0f0] hover:bg-[#ffe0e0] text-[#b30000]",  // vermelho
+const SPACE_COLORS = [
+  { border: "#22d3ee", bg: "rgba(34,211,238,0.08)",  text: "#67e8f9", glow: "rgba(34,211,238,0.25)" },
+  { border: "#a78bfa", bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", glow: "rgba(167,139,250,0.25)" },
+  { border: "#fb923c", bg: "rgba(251,146,60,0.08)",  text: "#fdba74", glow: "rgba(251,146,60,0.25)" },
+  { border: "#f472b6", bg: "rgba(244,114,182,0.08)", text: "#f9a8d4", glow: "rgba(244,114,182,0.25)" },
 ];
 
-export const Challenge = ({
-  options,
-  onSelect,
-  status,
-  selectedOption,
-  disabled,
-  type,
-}: ChallengeProps) => {
+export const Challenge = ({ options, onSelect, status, selectedOption, disabled, type }: ChallengeProps) => {
   return (
-    <div
-      className={cn(
-        "grid gap-3",
-        type === "ASSIST" && "grid-cols-1",
-        type === "SELECT" && "grid-cols-2"
-      )}
-    >
+    <div className={cn("grid gap-3", type === "ASSIST" && "grid-cols-1", type === "SELECT" && "grid-cols-2")}>
       {options.map((option, i) => {
         const isSelected = selectedOption === option.id;
-        const colorClass = CARD_COLORS[i % CARD_COLORS.length];
+        const col = SPACE_COLORS[i % SPACE_COLORS.length];
+        const borderColor = isSelected && status === "correct" ? "#4ade80" : isSelected && status === "wrong" ? "#f87171" : isSelected ? "#fff" : col.border;
+        const bgColor = isSelected && status === "correct" ? "rgba(74,222,128,0.12)" : isSelected && status === "wrong" ? "rgba(248,113,113,0.12)" : isSelected ? "rgba(255,255,255,0.1)" : col.bg;
+        const textColor = isSelected && status === "correct" ? "#86efac" : isSelected && status === "wrong" ? "#fca5a5" : isSelected ? "#fff" : col.text;
 
         return (
           <button
             key={option.id}
             onClick={() => !disabled && onSelect(option.id)}
             disabled={disabled}
-            className={cn(
-              // Base
-              "relative flex items-center justify-between rounded-2xl border-2 border-b-4 px-4 py-3 text-left font-bold transition-all duration-150",
-              "active:border-b-2 active:translate-y-[2px]",
-              // Color per option
-              !isSelected && status === "none" && colorClass,
-              // Selected + status
-              isSelected && status === "none" && "border-[#58CC02] bg-[#e4fad0] text-[#2d7a00] ring-2 ring-[#58CC02]/40 scale-[1.02]",
-              isSelected && status === "correct" && "border-green-500 bg-green-100 text-green-700 ring-2 ring-green-400/50",
-              isSelected && status === "wrong" && "border-rose-500 bg-rose-100 text-rose-700 ring-2 ring-rose-400/50",
-              // Unselected after answer
-              !isSelected && status !== "none" && "opacity-50 saturate-50",
-              // Disabled
-              disabled && "cursor-not-allowed",
-            )}
+            className={cn("relative flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left font-bold transition-all duration-150 active:scale-[0.98]", !isSelected && status !== "none" && "opacity-40", disabled && "cursor-not-allowed")}
+            style={{ borderColor, backgroundColor: bgColor, color: textColor, boxShadow: isSelected ? `0 0 18px ${status === "correct" ? "rgba(74,222,128,0.4)" : status === "wrong" ? "rgba(248,113,113,0.4)" : "rgba(255,255,255,0.2)"}` : `0 0 8px ${col.glow}` }}
           >
-            {/* Number badge */}
-            <div
-              className={cn(
-                "mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 text-sm font-extrabold",
-                isSelected && status === "correct" && "border-green-500 bg-green-500 text-white",
-                isSelected && status === "wrong" && "border-rose-500 bg-rose-500 text-white",
-                isSelected && status === "none" && "border-[#58CC02] bg-[#58CC02] text-white",
-                !isSelected && "border-current bg-white/60",
-              )}
-            >
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-extrabold"
+              style={{ border: `1.5px solid ${borderColor}`, backgroundColor: isSelected ? borderColor : "transparent", color: isSelected ? "#0f172a" : textColor }}>
               {i + 1}
             </div>
-
             <span className="flex-1 text-sm lg:text-base">{option.text}</span>
-
-            {/* Result icon */}
-            {isSelected && status === "correct" && (
-              <span className="ml-2 text-xl">✅</span>
-            )}
-            {isSelected && status === "wrong" && (
-              <span className="ml-2 text-xl">❌</span>
-            )}
+            {isSelected && status === "correct" && <span className="text-lg">✅</span>}
+            {isSelected && status === "wrong" && <span className="text-lg">❌</span>}
           </button>
         );
       })}

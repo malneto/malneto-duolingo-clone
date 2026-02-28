@@ -1,8 +1,7 @@
 "use client";
 
 import { CheckCircle, XCircle } from "lucide-react";
-import { useKey, useMedia } from "react-use";
-import { Button } from "@/components/ui/button";
+import { useKey } from "react-use";
 import { MESSAGES } from "@/constants/messages";
 
 type FooterProps = {
@@ -12,62 +11,61 @@ type FooterProps = {
   lessonId?: number;
 };
 
-export const Footer = ({
-  onCheck,
-  status,
-  disabled,
-  lessonId,
-}: FooterProps) => {
+export const Footer = ({ onCheck, status, disabled, lessonId }: FooterProps) => {
   useKey("Enter", onCheck, {}, [onCheck]);
-  const isMobile = useMedia("(max-width: 1024px)");
 
   const isCorrect = status === "correct";
   const isWrong = status === "wrong";
   const isCompleted = status === "completed";
   const isDone = isCorrect || isCompleted;
 
+  const footerBg = isCorrect
+    ? "rgba(74,222,128,0.08)" : isWrong
+    ? "rgba(248,113,113,0.08)" : "rgba(10,14,26,0.95)";
+
+  const footerBorder = isCorrect
+    ? "rgba(74,222,128,0.4)" : isWrong
+    ? "rgba(248,113,113,0.4)" : "rgba(99,102,241,0.25)";
+
   return (
     <footer
-      className={`
-        fixed left-0 right-0 z-40 border-t-2 transition-all duration-300
-        /* ─── CHAVE: bottom sobe 60px no mobile para ficar ACIMA do bottom-nav ─── */
-        bottom-[60px] lg:bottom-0
-        ${isCorrect ? "border-green-400 bg-green-50" : ""}
-        ${isWrong ? "border-rose-400 bg-rose-50" : ""}
-        ${!isCorrect && !isWrong ? "border-slate-200 bg-white" : ""}
-      `}
+      className="fixed left-0 right-0 z-40 bottom-[60px] lg:bottom-0 transition-all duration-300"
+      style={{
+        background: footerBg,
+        borderTop: `2px solid ${footerBorder}`,
+        backdropFilter: "blur(16px)",
+      }}
     >
       <div className="mx-auto max-w-[1140px] px-4 py-3 lg:px-10 lg:py-5">
 
-        {/* Feedback banner */}
+        {/* Correct feedback */}
         {isCorrect && (
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 shadow-md">
-              <CheckCircle className="h-6 w-6 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ background: "rgba(74,222,128,0.2)", border: "1.5px solid rgba(74,222,128,0.5)" }}>
+              <CheckCircle className="h-6 w-6" style={{ color: "#4ade80" }} />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-green-600">
-                Incrível! 🎉
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#86efac" }}>
+                Missão concluída! 🚀
               </p>
-              <p className="text-base font-bold text-green-700">
-                {MESSAGES.wellDone}
-              </p>
+              <p className="text-base font-bold" style={{ color: "#4ade80" }}>{MESSAGES.wellDone}</p>
             </div>
           </div>
         )}
 
+        {/* Wrong feedback */}
         {isWrong && (
           <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 shadow-md">
-              <XCircle className="h-6 w-6 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ background: "rgba(248,113,113,0.2)", border: "1.5px solid rgba(248,113,113,0.5)" }}>
+              <XCircle className="h-6 w-6" style={{ color: "#f87171" }} />
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-rose-500">
-                Quase lá! 💪
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#fca5a5" }}>
+                Rota incorreta! 🛸
               </p>
-              <p className="text-base font-bold text-rose-600">
-                {MESSAGES.tryAgain}
-              </p>
+              <p className="text-base font-bold" style={{ color: "#f87171" }}>{MESSAGES.tryAgain}</p>
             </div>
           </div>
         )}
@@ -76,19 +74,23 @@ export const Footer = ({
         <button
           onClick={onCheck}
           disabled={disabled}
-          className={`
-            w-full rounded-2xl py-4 text-lg font-extrabold tracking-wide shadow-md
-            transition-all duration-150 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed
-            ${isDone
-              ? "bg-green-500 text-white shadow-green-200 hover:bg-green-600 hover:shadow-green-300"
-              : isWrong
-              ? "bg-rose-500 text-white shadow-rose-200 hover:bg-rose-600"
-              : "bg-[#58CC02] text-white shadow-[0_4px_0_#3d8f00] hover:bg-[#4db800] hover:shadow-[0_2px_0_#3d8f00] active:shadow-none active:translate-y-[2px]"
-            }
-          `}
+          className="w-full rounded-2xl py-4 text-lg font-extrabold tracking-wide transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-30"
+          style={isDone ? {
+            background: "linear-gradient(135deg, #22d3ee, #0ea5e9)",
+            color: "#0f172a",
+            boxShadow: "0 0 20px rgba(34,211,238,0.4), 0 4px 0 rgba(14,165,233,0.6)",
+          } : isWrong ? {
+            background: "linear-gradient(135deg, #f87171, #ef4444)",
+            color: "#fff",
+            boxShadow: "0 0 20px rgba(248,113,113,0.3), 0 4px 0 rgba(220,38,38,0.5)",
+          } : {
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            color: "#fff",
+            boxShadow: "0 0 20px rgba(99,102,241,0.4), 0 4px 0 rgba(67,56,202,0.6)",
+          }}
         >
-          {status === "none" && `✅ ${MESSAGES.verify}`}
-          {(isDone || isWrong) && `➡️ ${MESSAGES.continue}`}
+          {status === "none" && "🛸 " + MESSAGES.verify}
+          {(isDone || isWrong) && "🚀 " + MESSAGES.continue}
         </button>
       </div>
     </footer>
