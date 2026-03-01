@@ -2,6 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { FeedWrapper } from "@/components/feed-wrapper";
+import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
@@ -20,7 +21,7 @@ const ShopPage = async () => {
   const isPro = !!userSubscription?.isActive;
 
   return (
-    <div className="flex flex-col lg:flex-row-reverse gap-[48px] px-4 lg:px-6 pb-28 lg:pb-6">
+    <div className="flex flex-col lg:flex-row-reverse gap-[48px] px-4 lg:px-6">
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}
@@ -28,6 +29,7 @@ const ShopPage = async () => {
           points={userProgress.points}
           hasActiveSubscription={isPro}
         />
+        {!isPro && <Promo />}
         <Quests points={userProgress.points} />
       </StickyWrapper>
 
@@ -50,8 +52,14 @@ const ShopPage = async () => {
             Troque seus XP por poderes espaciais
           </p>
 
-          {/* Divider */}
           <div className="mb-6 h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent)" }} />
+
+          {/* Promo card — mobile only */}
+          {!isPro && (
+            <div className="mb-6 w-full lg:hidden">
+              <Promo />
+            </div>
+          )}
 
           <Items
             hearts={userProgress.hearts}

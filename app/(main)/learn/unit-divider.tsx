@@ -27,13 +27,13 @@ export const UnitDivider: FC<UnitDividerProps> = ({ children, nextUnitOrder = 1 
       <div
         className="flex items-center gap-3 rounded-full px-6 py-2.5"
         style={{
-          background: `linear-gradient(135deg, ${t.color}15, ${t.color}08)`,
-          border: `1.5px solid ${t.color}44`,
-          boxShadow: `0 0 16px ${t.color}22`,
+          background: `linear-gradient(135deg, ${t.color}30, ${t.color}18)`,
+          border: `2px solid ${t.color}99`,
+          boxShadow: `0 0 24px ${t.color}55, inset 0 0 12px ${t.color}15`,
         }}
       >
         <span className="text-base">{t.label}</span>
-        <span className="text-xs font-extrabold uppercase tracking-widest" style={{ color: t.color }}>
+        <span className="text-sm font-extrabold uppercase tracking-widest text-white drop-shadow-lg">
           {children}
         </span>
         <span className="text-base">🚀</span>

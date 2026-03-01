@@ -2,6 +2,7 @@ import type { PropsWithChildren } from "react";
 
 import { MobileHeader } from "@/components/mobile-header";
 import { Sidebar } from "@/components/sidebar";
+import { BottomNavigation } from "@/components/bottom-navigation";
 
 // Starfield SSR-safe (valores fixos, sem Math.random)
 const STARS = Array.from({ length: 60 }, (_, i) => ({
@@ -40,9 +41,10 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       <div className="relative z-10">
         <MobileHeader />
         <Sidebar className="hidden lg:flex" />
-        <main className="h-full pt-[50px] lg:pl-[256px] lg:pt-0">
+        <main className="h-full pt-[50px] pb-20 lg:pl-[256px] lg:pt-0 lg:pb-0">
           <div className="mx-auto h-full max-w-[1056px] pt-6">{children}</div>
         </main>
+        <BottomNavigation />
       </div>
     </div>
   );
