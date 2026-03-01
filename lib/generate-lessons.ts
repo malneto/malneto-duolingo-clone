@@ -220,6 +220,12 @@ export async function generateLessons(
   const unitTheme = unit.subject ?? unit.title ?? "General English";
   const weakTags  = await detectWeakTags(userId);
 
+  // Reset sequences to prevent duplicate key conflicts
+  await db.execute(sql`SELECT setval('units_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units))`);
+  await db.execute(sql`SELECT setval('lessons_id_seq', (SELECT COALESCE(MAX(id), 1) FROM lessons))`);
+  await db.execute(sql`SELECT setval('challenges_id_seq', (SELECT COALESCE(MAX(id), 1) FROM challenges))`);
+  await db.execute(sql`SELECT setval('challenge_options_id_seq', (SELECT COALESCE(MAX(id), 1) FROM challenge_options))`);
+
   // Get current max lesson order in this unit
   const lessonOrderResult = await db.execute(
     sql`SELECT COALESCE(MAX("order"), 0) + 1 AS next_order FROM lessons WHERE unit_id = ${unitId}`
@@ -330,7 +336,8 @@ export async function shouldCreateNewUnit(
 }
 
 // ─── getOrCreateActiveUnit ────────────────────────────────────────────────
-// Always creates a new unit for each generation batch.
+// Returns the current unit to generate into.
+// Creates a new unit if shouldCreateNewUnit is true.
 
 export async function getOrCreateActiveUnit(
   userId: string,
@@ -342,12 +349,16 @@ export async function getOrCreateActiveUnit(
     orderBy: (u, { desc }) => [desc(u.order)],
   });
 
-  const up = await db.query.userProgress.findFirst({
-    where: eq(userProgress.userId, userId),
-  });
-  const cefrLevel = up?.cefrLevel ?? "A1.1";
-  const currentOrder = lastUnit?.order ?? 0;
+  const needsNewUnit = await shouldCreateNewUnit(userId, courseId, previousCefrBand);
 
-  // Always create a new unit for each generation batch
-  return createNewUnit(courseId, cefrLevel, currentOrder);
+  if (!lastUnit || needsNewUnit) {
+    const up = await db.query.userProgress.findFirst({
+      where: eq(userProgress.userId, userId),
+    });
+    const cefrLevel = up?.cefrLevel ?? "A1.1";
+    const currentOrder = lastUnit?.order ?? 0;
+    return createNewUnit(courseId, cefrLevel, currentOrder);
+  }
+
+  return lastUnit.id;
 }
