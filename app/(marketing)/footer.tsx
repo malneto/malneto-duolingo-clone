@@ -1,65 +1,46 @@
 import Image from "next/image";
+import db from "@/db/drizzle";
+import { courses } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-import { Button } from "@/components/ui/button";
+export const Footer = async () => {
+  const publicCourses = await db.query.courses.findMany({
+    where: eq(courses.isPublic, true),
+  });
 
-export const Footer = () => {
+  if (!publicCourses.length) return null;
+
   return (
-    <div className="hidden h-20 w-full border-t-2 border-slate-200 p-2 lg:block">
-      <div className="mx-auto flex h-full max-w-screen-lg items-center justify-evenly">
-        <Button size="lg" variant="ghost" className="w-full cursor-default">
-          <Image
-            src="/hr.svg"
-            alt="Croatian"
-            height={32}
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Croatian
-        </Button>
-
-        <Button size="lg" variant="ghost" className="w-full cursor-default">
-          <Image
-            src="/es.svg"
-            alt="Spanish"
-            height={32}
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Spanish
-        </Button>
-
-        <Button size="lg" variant="ghost" className="w-full cursor-default">
-          <Image
-            src="/fr.svg"
-            alt="French"
-            height={32}
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          French
-        </Button>
-
-        <Button size="lg" variant="ghost" className="w-full cursor-default">
-          <Image
-            src="/it.svg"
-            alt="Italian"
-            height={32}
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Italian
-        </Button>
-
-        <Button size="lg" variant="ghost" className="w-full cursor-default">
-          <Image
-            src="/jp.svg"
-            alt="Japanese"
-            height={32}
-            width={40}
-            className="mr-4 rounded-md"
-          />
-          Japanese
-        </Button>
+    <div
+      className="w-full px-4 py-6"
+      style={{
+        borderTop: "1px solid rgba(99,102,241,0.2)",
+        background: "rgba(10,14,26,0.8)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <div className="mx-auto flex max-w-screen-lg flex-wrap items-center justify-center gap-3">
+        {publicCourses.map((course) => (
+          <div
+            key={course.id}
+            className="flex items-center gap-2 rounded-2xl px-4 py-2 transition-all"
+            style={{
+              background: "rgba(99,102,241,0.08)",
+              border: "1px solid rgba(99,102,241,0.2)",
+            }}
+          >
+            <Image
+              src={course.imageSrc}
+              alt={course.title}
+              height={24}
+              width={30}
+              className="rounded-sm"
+            />
+            <span className="text-sm font-semibold text-slate-300">
+              {course.title}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

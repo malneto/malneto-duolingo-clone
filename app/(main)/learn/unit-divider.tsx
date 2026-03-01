@@ -33,7 +33,7 @@ export const UnitDivider: FC<UnitDividerProps> = ({ children, nextUnitOrder = 1 
         }}
       >
         <span className="text-base">{t.label}</span>
-        <span className="text-sm font-extrabold uppercase tracking-widest text-white drop-shadow-lg">
+        <span style={{ color: "#ffffff", fontWeight: 800, fontSize: "0.875rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>
           {children}
         </span>
         <span className="text-base">🚀</span>
