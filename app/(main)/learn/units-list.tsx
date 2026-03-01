@@ -86,9 +86,8 @@ export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: Units
         title={currentUnit?.title || ''} 
       />
       {units.map((unit, i) => (
-        <>
-          <div 
-            key={unit.id} 
+        
+        <div key={unit.id} 
             ref={(el) => { unitRefs.current[i] = el; }}
             className="mb-10"
           >
@@ -100,13 +99,12 @@ export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: Units
               activeLesson={activeLesson}
               activeLessonPercentage={activeLessonPercentage}
             />
-          </div>
           {i < units.length - 1 && (
             <UnitDivider>
               Unidade {units[i + 1].order}
             </UnitDivider>
           )}
-        </>
+        </div>
       ))}
     </>
   );

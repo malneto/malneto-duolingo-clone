@@ -115,6 +115,8 @@ export const Quiz = ({
         style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #0f172a 60%, #1a0a2e 100%)" }}>
         <SpaceBackground />
         {finishAudio}
+        {correctAudio}
+        {incorrectAudio}
         <Confetti recycle={false} numberOfPieces={600} tweenDuration={8000} width={width} height={height} colors={["#a78bfa","#22d3ee","#f472b6","#fbbf24","#fff"]} />
         <div className="relative z-10 flex max-w-lg flex-col items-center gap-y-6 px-6 text-center">
           <div className="text-8xl animate-bounce">🚀</div>

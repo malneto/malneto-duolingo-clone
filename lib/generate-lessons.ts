@@ -336,8 +336,7 @@ export async function shouldCreateNewUnit(
 }
 
 // ─── getOrCreateActiveUnit ────────────────────────────────────────────────
-// Returns the current unit to generate into.
-// Creates a new unit if shouldCreateNewUnit is true.
+// Always creates a brand new unit for each generation batch.
 
 export async function getOrCreateActiveUnit(
   userId: string,
@@ -349,16 +348,12 @@ export async function getOrCreateActiveUnit(
     orderBy: (u, { desc }) => [desc(u.order)],
   });
 
-  const needsNewUnit = await shouldCreateNewUnit(userId, courseId, previousCefrBand);
+  const up = await db.query.userProgress.findFirst({
+    where: eq(userProgress.userId, userId),
+  });
+  const cefrLevel = up?.cefrLevel ?? "A1.1";
+  const currentOrder = lastUnit?.order ?? 0;
 
-  if (!lastUnit || needsNewUnit) {
-    const up = await db.query.userProgress.findFirst({
-      where: eq(userProgress.userId, userId),
-    });
-    const cefrLevel = up?.cefrLevel ?? "A1.1";
-    const currentOrder = lastUnit?.order ?? 0;
-    return createNewUnit(courseId, cefrLevel, currentOrder);
-  }
-
-  return lastUnit.id;
+  // Always create a new unit for each generation batch
+  return createNewUnit(courseId, cefrLevel, currentOrder);
 }
