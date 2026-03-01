@@ -82,7 +82,7 @@ export const FillInBlank = ({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleSubmit(); }}}
           placeholder="Digite a palavra que falta..."
           className="w-full rounded-2xl px-6 py-5 text-xl font-semibold text-white placeholder-slate-500 outline-none disabled:opacity-50"
           style={{ background: "rgba(10,14,26,0.9)", backdropFilter: "blur(8px)" }}

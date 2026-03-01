@@ -1,16 +1,13 @@
-"use client";
-
-import {
-  ClerkLoaded,
-  ClerkLoading,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-} from "@clerk/nextjs";
-import { Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { AuthButtons } from "@/components/auth-buttons";
+
+// Fixed star positions — no Math.random to avoid hydration mismatch
+const STARS = [
+  [12,8],[25,22],[67,5],[80,15],[93,30],[5,45],[45,3],[88,60],
+  [15,70],[55,85],[72,92],[35,50],[60,40],[90,80],[20,90],
+] as const;
 
 export default function MarketingPage() {
   return (
@@ -19,10 +16,7 @@ export default function MarketingPage() {
       style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #0f172a 60%, #1e1040 100%)" }}
     >
       {/* Stars */}
-      {[
-        [12,8],[25,22],[67,5],[80,15],[93,30],[5,45],[45,3],[88,60],
-        [15,70],[55,85],[72,92],[35,50],[60,40],[90,80],[20,90],
-      ].map(([l, t], i) => (
+      {STARS.map(([l, t], i) => (
         <div key={i} className="pointer-events-none absolute rounded-full bg-white"
           style={{ left: `${l}%`, top: `${t}%`, width: i % 3 === 0 ? 2 : 1, height: i % 3 === 0 ? 2 : 1, opacity: 0.2 + (i % 5) * 0.1 }} />
       ))}
@@ -35,12 +29,10 @@ export default function MarketingPage() {
 
       <div className="relative z-10 flex w-full max-w-[988px] flex-col items-center justify-center gap-8 lg:flex-row lg:gap-16">
 
-        {/* Hero image with orbital rings */}
+        {/* Hero image */}
         <div className="relative flex items-center justify-center">
           <div className="absolute rounded-full border border-indigo-500/20" style={{ width: 320, height: 320 }} />
           <div className="absolute rounded-full border border-cyan-500/10" style={{ width: 380, height: 380 }} />
-
-          {/* Floating badges */}
           <div className="absolute -top-4 -right-4 rounded-2xl px-3 py-1.5 text-xs font-extrabold"
             style={{ background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "#a5b4fc" }}>
             🚀 A1 → C1
@@ -49,7 +41,6 @@ export default function MarketingPage() {
             style={{ background: "rgba(34,211,238,0.15)", border: "1px solid rgba(34,211,238,0.3)", color: "#67e8f9" }}>
             ⚡ IA Adaptativa
           </div>
-
           <div className="relative h-[220px] w-[220px] lg:h-[340px] lg:w-[340px]">
             <Image src="/hero.svg" alt="Hero" fill className="drop-shadow-2xl" />
           </div>
@@ -80,37 +71,19 @@ export default function MarketingPage() {
             ))}
           </div>
 
-          <div className="flex w-full max-w-[330px] flex-col gap-3">
-            <ClerkLoading>
-              <Loader className="mx-auto h-5 w-5 animate-spin text-indigo-400" />
-            </ClerkLoading>
-
-            <ClerkLoaded>
-              <SignedOut>
-                <SignUpButton mode="modal">
-                  <button className="w-full rounded-2xl py-3.5 text-sm font-extrabold text-white transition-all active:scale-95"
-                    style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}>
-                    🚀 Começar jornada — é grátis
-                  </button>
-                </SignUpButton>
-
-                <SignInButton mode="modal">
-                  <button className="w-full rounded-2xl py-3.5 text-sm font-extrabold transition-all active:scale-95"
-                    style={{ background: "rgba(99,102,241,0.1)", border: "1.5px solid rgba(99,102,241,0.4)", color: "#a5b4fc" }}>
-                    Já tenho conta
-                  </button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <Link href="/learn">
-                  <button className="w-full rounded-2xl py-3.5 text-sm font-extrabold text-white transition-all active:scale-95"
-                    style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}>
-                    🚀 Continuar jornada
-                  </button>
-                </Link>
-              </SignedIn>
-            </ClerkLoaded>
+          {/* Auth buttons — client component */}
+          <div className="w-full max-w-[330px]">
+            <SignedOut>
+              <AuthButtons />
+            </SignedOut>
+            <SignedIn>
+              <Link href="/learn">
+                <button className="w-full rounded-2xl py-3.5 text-sm font-extrabold text-white transition-all active:scale-95"
+                  style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)", boxShadow: "0 0 24px rgba(99,102,241,0.4)" }}>
+                  🚀 Continuar jornada
+                </button>
+              </Link>
+            </SignedIn>
           </div>
         </div>
       </div>
