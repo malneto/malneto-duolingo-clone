@@ -6,11 +6,11 @@ interface UnitDividerProps {
 }
 
 const DIVIDER_THEMES = [
-  { color: "#a78bfa", label: "🪐 Nova Órbita" },
-  { color: "#22d3ee", label: "🌊 Novo Setor" },
-  { color: "#4ade80", label: "🌌 Nova Galáxia" },
-  { color: "#fb923c", label: "☄️ Nova Rota" },
-  { color: "#f472b6", label: "✨ Nova Missão" },
+  { color: "#a78bfa", label: "🪐" },
+  { color: "#22d3ee", label: "🌊" },
+  { color: "#4ade80", label: "🌌" },
+  { color: "#fb923c", label: "☄️" },
+  { color: "#f472b6", label: "✨" },
 ];
 
 export const UnitDivider: FC<UnitDividerProps> = ({ children, nextUnitOrder = 1 }) => {

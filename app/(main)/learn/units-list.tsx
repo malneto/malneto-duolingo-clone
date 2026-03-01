@@ -101,7 +101,7 @@ export const UnitsList = ({ units, activeLessonPercentage, activeLesson }: Units
             />
           {i < units.length - 1 && (
             <UnitDivider>
-              Unidade {units[i + 1].order}
+              {units[i + 1].title}
             </UnitDivider>
           )}
         </div>

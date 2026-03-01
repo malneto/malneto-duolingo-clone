@@ -65,6 +65,13 @@ export const Speak = ({ challenge, onSelect, status, disabled }: SpeakProps) => 
         <p className="mt-2 text-sm font-semibold uppercase tracking-widest text-indigo-300">
           🎙️ Fale em voz alta
         </p>
+        {correctOption && (
+          <div className="mt-4 rounded-2xl px-6 py-3 text-center"
+            style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)" }}>
+            <p className="text-xs font-bold uppercase tracking-widest text-indigo-300 mb-1">Diga em inglês:</p>
+            <p className="text-xl font-extrabold text-white">{correctOption.text}</p>
+          </div>
+        )}
       </div>
 
       {/* Mic button */}

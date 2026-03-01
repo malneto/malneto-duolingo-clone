@@ -14,9 +14,9 @@ import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 
 import { Challenge } from "./challenge";
+import { CharacterBubble } from "./character-bubble";
 import { Footer } from "./footer";
 import { Header } from "./header";
-import { QuestionBubble } from "./question-bubble";
 import { ResultCard } from "./result-card";
 import { Translate } from "./translate";
 import { FillInBlank } from "./fill-in-blank";
@@ -40,7 +40,6 @@ type QuizProps = {
 
 const TEXT_INPUT_TYPES = ["TRANSLATE", "FILL_IN_BLANK", "LISTEN_AND_TYPE"];
 
-// ── Starfield background ──────────────────────────────────────────
 const STARS = Array.from({ length: 50 }, (_, i) => ({
   id: i,
   top: `${(i * 37 + 11) % 100}%`,
@@ -53,11 +52,8 @@ const STARS = Array.from({ length: 50 }, (_, i) => ({
 const SpaceBackground = () => (
   <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
     {STARS.map((s) => (
-      <div
-        key={s.id}
-        className="absolute rounded-full bg-white animate-pulse"
-        style={{ width: s.size, height: s.size, top: s.top, left: s.left, opacity: 0.5, animationDuration: s.dur, animationDelay: s.delay }}
-      />
+      <div key={s.id} className="absolute rounded-full bg-white animate-pulse"
+        style={{ width: s.size, height: s.size, top: s.top, left: s.left, opacity: 0.5, animationDuration: s.dur, animationDelay: s.delay }} />
     ))}
     <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full opacity-[0.07]"
       style={{ background: "radial-gradient(circle, #7c3aed, transparent)" }} />
@@ -67,6 +63,16 @@ const SpaceBackground = () => (
       style={{ background: "radial-gradient(circle, #e879f9, transparent)" }} />
   </div>
 );
+
+const TYPE_LABELS: Record<string, string> = {
+  ASSIST:        "🔊 Escute e selecione a resposta certa",
+  SELECT:        "❓ Escolha a resposta certa",
+  TRANSLATE:     "🌍 Traduza para o inglês",
+  FILL_IN_BLANK: "✏️ Complete a frase",
+  LISTEN_AND_TYPE: "👂 Ouça e escreva",
+  MATCH:         "🔗 Conecte os pares",
+  SPEAK:         "🎙️ Fale em voz alta",
+};
 
 export const Quiz = ({
   initialPercentage,
@@ -103,8 +109,6 @@ export const Quiz = ({
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
-
-  // ── Cast único — resolve todos os erros de comparação de tipo ──
   const type = challenge?.type as string;
   const isTextInput = TEXT_INPUT_TYPES.includes(type);
 
@@ -114,9 +118,7 @@ export const Quiz = ({
       <div className="relative flex min-h-screen flex-col items-center justify-center"
         style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #0f172a 60%, #1a0a2e 100%)" }}>
         <SpaceBackground />
-        {finishAudio}
-        {correctAudio}
-        {incorrectAudio}
+        {finishAudio}{correctAudio}{incorrectAudio}
         <Confetti recycle={false} numberOfPieces={600} tweenDuration={8000} width={width} height={height} colors={["#a78bfa","#22d3ee","#f472b6","#fbbf24","#fff"]} />
         <div className="relative z-10 flex max-w-lg flex-col items-center gap-y-6 px-6 text-center">
           <div className="text-8xl animate-bounce">🚀</div>
@@ -191,49 +193,45 @@ export const Quiz = ({
     }
   };
 
-  const title =
-    type === "ASSIST"        ? "Escute e selecione a resposta certa:" :
-    type === "VIDEO"         ? "Assista e responda:" :
-    type === "SPEAK"         ? "Fale em voz alta:" :
-    type === "LISTEN_AND_TYPE" ? "Ouça e escreva o que ouviu:" :
-    type === "MATCH"         ? "Conecte os pares:" :
-    challenge.question       || "Escolha a resposta certa:";
-
   const isFooterDisabled = pending || (status === "none" && !selectedOption);
+  const charSeedId = challenge.id;
+  const typeLabel = TYPE_LABELS[type] ?? "Escolha a resposta certa";
+  const showCharacter = type !== "VIDEO" && type !== "FILL_IN_BLANK";
 
   return (
     <div className="relative flex min-h-screen flex-col"
       style={{ background: "linear-gradient(180deg, #0a0e1a 0%, #0f172a 60%, #1e1040 100%)" }}>
       <SpaceBackground />
-
-      {incorrectAudio}
-      {correctAudio}
+      {incorrectAudio}{correctAudio}
 
       <div className="relative z-10">
         <Header hearts={hearts} percentage={percentage} hasActiveSubscription={!!userSubscription?.isActive} />
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 pb-48 pt-6">
-        <div className="flex w-full max-w-[600px] flex-col gap-y-8">
-          <h1 className="text-center text-sm font-bold uppercase tracking-widest text-indigo-300 lg:text-start lg:text-base">
-            {title}
-          </h1>
+        <div className="flex w-full max-w-[600px] flex-col gap-y-6">
+
+          {/* Type label */}
+          <p className="text-center text-xs font-bold uppercase tracking-widest text-indigo-400 lg:text-start">
+            {typeLabel}
+          </p>
+
+          {/* Character bubble — all types except VIDEO and FILL_IN_BLANK (which has its own) */}
+          {showCharacter && (
+            <CharacterBubble
+              question={challenge.question}
+              seedId={charSeedId}
+              autoSpeak={type === "ASSIST"}
+            />
+          )}
 
           <div>
             {type === "ASSIST" && (
-              <>
-                <QuestionBubble question={challenge.question} autoPlayAudio={true} />
-                <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
-              </>
+              <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
             )}
 
             {type === "SELECT" && (
-              <>
-                <QuestionBubble question={challenge.question} />
-                <div className="mt-4">
-                  <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
-                </div>
-              </>
+              <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
             )}
 
             {type === "TRANSLATE" && (

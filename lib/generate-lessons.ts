@@ -61,6 +61,7 @@ SELECT, ASSIST, SPEAK, SELECT, TRANSLATE, FILL_IN_BLANK, SPEAK, MATCH
 
 Contexto do aluno:
 - Nível atual: ${cefrLevel}
+- CRÍTICO: Use APENAS estes níveis exatos: A1.1, A1.2, A1.3, A2.1, A2.2, A2.3, B1.1, B1.2, B1.3, B2.1, B2.2, B2.3, C1.1, C1.2, C1.3. NUNCA invente outros como A1.4 ou A2.4.
 - ${weakSection}
 - Tema geral da unidade: ${unitTheme}
 
@@ -75,7 +76,7 @@ Regras de idioma:
 - Para B1+: transicionar gradualmente para enunciados em inglês
 - TRANSLATE: peça para traduzir DO português PARA o inglês
 - FILL_IN_BLANK: sempre lacuna de palavra única
-- SPEAK: palavra única ou frase curta (A1/A2), frases completas (B1+)
+- SPEAK: palavra única ou frase curta (A1/A2), frases completas (B1+). OBRIGATÓRIO: inclua sempre uma option { "text": "resposta esperada", "correct": true }
 - MATCH: sempre 4 pares (8 options total), matchGroup de 1 a 4
 
 Para SELECT e ASSIST: sempre 4 options, a opção correta deve variar de posição (não sempre a primeira).
@@ -163,11 +164,15 @@ async function saveLessons(
         })
         .returning();
 
-      for (const opt of (ac.options ?? ac.choices ?? [])) {
+      const rawOpts = ac.options ?? ac.choices ?? [];
+      const safeOpts = rawOpts.length === 0
+        ? [{ text: ac.question, correct: true, matchGroup: undefined }]
+        : rawOpts;
+      for (const opt of safeOpts) {
         await db.insert(challengeOptions).values({
           challengeId: newChallenge.id,
           text: opt.text,
-          correct: opt.correct,
+          correct: opt.correct ?? false,
           matchGroup: opt.matchGroup ?? null,
         });
       }
@@ -219,6 +224,12 @@ export async function generateLessons(
   const cefrLevel = up.cefrLevel ?? "A1.1";
   const unitTheme = unit.subject ?? unit.title ?? "General English";
   const weakTags  = await detectWeakTags(userId);
+
+  // Reset sequences to prevent duplicate key conflicts
+  await db.execute(sql`SELECT setval('units_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units))`);
+  await db.execute(sql`SELECT setval('lessons_id_seq', (SELECT COALESCE(MAX(id), 1) FROM lessons))`);
+  await db.execute(sql`SELECT setval('challenges_id_seq', (SELECT COALESCE(MAX(id), 1) FROM challenges))`);
+  await db.execute(sql`SELECT setval('challenge_options_id_seq', (SELECT COALESCE(MAX(id), 1) FROM challenge_options))`);
 
   // Reset sequences to prevent duplicate key conflicts
   await db.execute(sql`SELECT setval('units_id_seq', (SELECT COALESCE(MAX(id), 1) FROM units))`);
@@ -286,11 +297,15 @@ export async function generateLessons(
         })
         .returning();
 
-      for (const opt of (ac.options ?? ac.choices ?? [])) {
+      const rawOpts = ac.options ?? ac.choices ?? [];
+      const safeOpts = rawOpts.length === 0
+        ? [{ text: ac.question, correct: true, matchGroup: undefined }]
+        : rawOpts;
+      for (const opt of safeOpts) {
         await db.insert(challengeOptions).values({
           challengeId: newChallenge.id,
           text: opt.text,
-          correct: opt.correct,
+          correct: opt.correct ?? false,
           matchGroup: opt.matchGroup ?? null,
         });
       }

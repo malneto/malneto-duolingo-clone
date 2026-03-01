@@ -1,5 +1,8 @@
-import { challengeOptions, challenges } from "@/db/schema";
+"use client";
+
+import { challengeOptions } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { speakEN } from "./character-bubble";
 
 type ChallengeProps = {
   options: (typeof challengeOptions.$inferSelect)[];
@@ -30,7 +33,11 @@ export const Challenge = ({ options, onSelect, status, selectedOption, disabled,
         return (
           <button
             key={option.id}
-            onClick={() => !disabled && onSelect(option.id)}
+            onClick={() => {
+              if (disabled) return;
+              onSelect(option.id);
+              if (type === "SELECT" || type === "ASSIST") speakEN(option.text);
+            }}
             disabled={disabled}
             className={cn("relative flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left font-bold transition-all duration-150 active:scale-[0.98]", !isSelected && status !== "none" && "opacity-40", disabled && "cursor-not-allowed")}
             style={{ borderColor, backgroundColor: bgColor, color: textColor, boxShadow: isSelected ? `0 0 18px ${status === "correct" ? "rgba(74,222,128,0.4)" : status === "wrong" ? "rgba(248,113,113,0.4)" : "rgba(255,255,255,0.2)"}` : `0 0 8px ${col.glow}` }}
