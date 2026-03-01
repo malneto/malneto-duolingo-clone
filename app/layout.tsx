@@ -13,7 +13,7 @@ import "./globals.css";
 const font = Nunito({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
-  themeColor: "#22C55E",
+  themeColor: "#0a0e1a",
 };
 
 export const metadata: Metadata = siteConfig;

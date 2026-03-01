@@ -162,7 +162,7 @@ async function saveLessons(
         })
         .returning();
 
-      for (const opt of ac.options) {
+      for (const opt of (ac.options ?? ac.choices ?? [])) {
         await db.insert(challengeOptions).values({
           challengeId: newChallenge.id,
           text: opt.text,
@@ -279,7 +279,7 @@ export async function generateLessons(
         })
         .returning();
 
-      for (const opt of ac.options) {
+      for (const opt of (ac.options ?? ac.choices ?? [])) {
         await db.insert(challengeOptions).values({
           challengeId: newChallenge.id,
           text: opt.text,
