@@ -52,9 +52,11 @@ export const Unit = ({
   return (
     <div className="relative flex flex-col items-center min-h-[100px]">
       <TrailPath />
-      {lessons.map((lesson, i) => {
+      {(() => {
+        const firstUncompletedIndex = lessons.findIndex((l) => !l.completed);
+        return lessons.map((lesson, i) => {
         const isCurrent = lesson.id === activeLesson?.id;
-        const isLocked = !lesson.completed && !isCurrent;
+        const isLocked = !lesson.completed && i !== firstUncompletedIndex;
 
         return (
           <LessonButton
@@ -68,7 +70,8 @@ export const Unit = ({
             subject={lesson.subject || "DEFAULT"}
           />
         );
-      })}
+      });
+      })()}
     </div>
   );
 };

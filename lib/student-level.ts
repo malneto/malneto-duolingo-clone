@@ -1,21 +1,86 @@
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import db from "@/db/drizzle";
 import {
   challenges,
+  lessons,
   user_challenge_history,
   userProgress,
 } from "@/db/schema";
-import { clampCefr, floatToCefr } from "@/lib/cefr";
+import { clampCefr, floatToCefr, cefrToFloat } from "@/lib/cefr";
+
+// ─── Constants ─────────────────────────────────────────────────────────────
+// A micro-level advance (e.g. A1.2 → A1.3) requires:
+const LESSONS_REQUIRED        = 60;  // completed lessons at current micro-level
+const FAST_LESSONS_REQUIRED   = 20;  // of which at least 20 must be "fast"
+const FAST_SECONDS_PER_CHALLENGE = 5; // avg seconds/challenge to be considered fast
+
+// ─── checkAndAdvanceLevel ──────────────────────────────────────────────────
+// Checks whether the student qualifies for a micro-level advance.
+// Only called after saving a new history entry.
+
+async function checkAndAdvanceLevel(
+  userId: string,
+  currentCefrLevel: string,
+  currentFloat: number
+): Promise<void> {
+  // Count completed lessons at the current micro-level
+  // A lesson is "at current level" if its level matches cefrLevel
+  // A lesson is "completed" if all its challenges have been answered correctly at least once
+  const completedAtLevel = await db.execute(sql`
+    SELECT
+      l.id,
+      AVG(uch.time_spent_seconds::float / NULLIF(
+        (SELECT COUNT(*) FROM challenges c2 WHERE c2.lesson_id = l.id), 0
+      )) AS avg_seconds_per_challenge
+    FROM lessons l
+    JOIN challenges c ON c.lesson_id = l.id
+    JOIN user_challenge_history uch
+      ON uch.challenge_id = c.id
+      AND uch.user_id = ${userId}
+      AND uch.correct = true
+    WHERE l.level = ${currentCefrLevel}
+    GROUP BY l.id
+    HAVING COUNT(DISTINCT c.id) = COUNT(DISTINCT CASE WHEN uch.correct THEN c.id END)
+  `);
+
+  const completedLessons = completedAtLevel.rows as {
+    id: number;
+    avg_seconds_per_challenge: number | null;
+  }[];
+
+  const totalCompleted = completedLessons.length;
+  if (totalCompleted < LESSONS_REQUIRED) return; // not enough lessons yet
+
+  const fastLessons = completedLessons.filter(
+    (l) =>
+      l.avg_seconds_per_challenge !== null &&
+      l.avg_seconds_per_challenge < FAST_SECONDS_PER_CHALLENGE
+  ).length;
+
+  if (fastLessons < FAST_LESSONS_REQUIRED) return; // not fast enough yet
+
+  // Advance one micro-level
+  const nextFloat = clampCefr(currentFloat + 0.1);
+  const nextCefr  = floatToCefr(nextFloat);
+
+  if (nextCefr === currentCefrLevel) return; // already at max
+
+  await db
+    .update(userProgress)
+    .set({ cefrLevel: nextCefr, cefrLevelFloat: nextFloat })
+    .where(eq(userProgress.userId, userId));
+
+  console.log(
+    `[student-level] ${userId} advanced from ${currentCefrLevel} → ${nextCefr} ` +
+    `(${totalCompleted} lessons completed, ${fastLessons} fast)`
+  );
+}
 
 // ─── updateStudentLevel ────────────────────────────────────────────────────
-// Called after each challenge answer. Adjusts cefrLevelFloat based on
-// correctness and time spent vs estimated time.
-//
-// Deltas:
-//   correct + fast   → +0.3  (comfortable, time to push harder)
-//   correct + slow   → +0.1  (got it but struggled)
-//   wrong (1st time) → -0.1
-//   wrong (repeated) → -0.3  (schedule for revision)
+// Called after each challenge answer.
+// - Always saves history entry
+// - Never adjusts level by delta anymore
+// - Checks advancement conditions after saving
 
 export async function updateStudentLevel(
   userId: string,
@@ -23,41 +88,13 @@ export async function updateStudentLevel(
   correct: boolean,
   timeSpentSeconds: number
 ): Promise<void> {
-  // Get current user progress
   const up = await db.query.userProgress.findFirst({
     where: eq(userProgress.userId, userId),
   });
   if (!up) return;
 
-  // Get challenge estimated time
-  const challenge = await db.query.challenges.findFirst({
-    where: eq(challenges.id, challengeId),
-    columns: { estimatedTimeSeconds: true, tags: true },
-  });
-
-  const estimated = challenge?.estimatedTimeSeconds ?? 30;
-  const currentFloat = up.cefrLevelFloat ?? 1.1;
-
-  // Count previous wrong attempts for this challenge
-  const prevAttempts = await db.query.user_challenge_history.findMany({
-    where: and(
-      eq(user_challenge_history.userId, userId),
-      eq(user_challenge_history.challengeId, challengeId),
-      eq(user_challenge_history.correct, false)
-    ),
-    columns: { id: true },
-  });
-  const isRepeatedWrong = !correct && prevAttempts.length > 0;
-
-  // Calculate delta
-  let delta = 0;
-  if (correct && timeSpentSeconds <= estimated)      delta = +0.3;
-  else if (correct && timeSpentSeconds > estimated)  delta = +0.1;
-  else if (isRepeatedWrong)                          delta = -0.3;
-  else                                               delta = -0.1;
-
-  const newFloat = clampCefr(currentFloat + delta);
-  const newCefr  = floatToCefr(newFloat);
+  const currentCefrLevel = up.cefrLevel ?? "A1.1";
+  const currentFloat     = up.cefrLevelFloat ?? cefrToFloat(currentCefrLevel);
 
   // Save history entry
   await db.insert(user_challenge_history).values({
@@ -68,11 +105,10 @@ export async function updateStudentLevel(
     xpEarned: correct ? 10 : 0,
   });
 
-  // Update user progress
-  await db
-    .update(userProgress)
-    .set({ cefrLevelFloat: newFloat, cefrLevel: newCefr })
-    .where(eq(userProgress.userId, userId));
+  // Only check for level advance on correct answers
+  if (correct) {
+    await checkAndAdvanceLevel(userId, currentCefrLevel, currentFloat);
+  }
 }
 
 // ─── detectWeakTags ────────────────────────────────────────────────────────
@@ -80,7 +116,6 @@ export async function updateStudentLevel(
 // returns tags where error rate > 40%.
 
 export async function detectWeakTags(userId: string): Promise<string[]> {
-  // Fetch last 30 challenge history entries with their challenge tags
   const history = await db
     .select({
       correct: user_challenge_history.correct,
@@ -92,7 +127,6 @@ export async function detectWeakTags(userId: string): Promise<string[]> {
     .orderBy(desc(user_challenge_history.completedAt))
     .limit(30);
 
-  // Tally correct/wrong per tag
   const tagStats: Record<string, { correct: number; wrong: number }> = {};
 
   for (const row of history) {
@@ -104,7 +138,6 @@ export async function detectWeakTags(userId: string): Promise<string[]> {
     }
   }
 
-  // Return tags with error rate > 40%
   return Object.entries(tagStats)
     .filter(([, s]) => {
       const total = s.correct + s.wrong;
