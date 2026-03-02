@@ -41,12 +41,8 @@ type QuizProps = {
 const TEXT_INPUT_TYPES = ["TRANSLATE", "FILL_IN_BLANK", "LISTEN_AND_TYPE"];
 
 const STARS = Array.from({ length: 50 }, (_, i) => ({
-  id: i,
-  top: `${(i * 37 + 11) % 100}%`,
-  left: `${(i * 61 + 7) % 100}%`,
-  size: (i % 3) + 1,
-  dur: `${((i % 4) + 2)}s`,
-  delay: `${(i % 5) * 0.4}s`,
+  id: i, top: `${(i * 37 + 11) % 100}%`, left: `${(i * 61 + 7) % 100}%`,
+  size: (i % 3) + 1, dur: `${((i % 4) + 2)}s`, delay: `${(i % 5) * 0.4}s`,
 }));
 
 const SpaceBackground = () => (
@@ -55,32 +51,25 @@ const SpaceBackground = () => (
       <div key={s.id} className="absolute rounded-full bg-white animate-pulse"
         style={{ width: s.size, height: s.size, top: s.top, left: s.left, opacity: 0.5, animationDuration: s.dur, animationDelay: s.delay }} />
     ))}
-    <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full opacity-[0.07]"
-      style={{ background: "radial-gradient(circle, #7c3aed, transparent)" }} />
-    <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full opacity-[0.07]"
-      style={{ background: "radial-gradient(circle, #0891b2, transparent)" }} />
-    <div className="absolute top-1/2 left-1/2 h-48 w-48 rounded-full opacity-[0.05]"
-      style={{ background: "radial-gradient(circle, #e879f9, transparent)" }} />
+    <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full opacity-[0.07]" style={{ background: "radial-gradient(circle, #7c3aed, transparent)" }} />
+    <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full opacity-[0.07]" style={{ background: "radial-gradient(circle, #0891b2, transparent)" }} />
+    <div className="absolute top-1/2 left-1/2 h-48 w-48 rounded-full opacity-[0.05]" style={{ background: "radial-gradient(circle, #e879f9, transparent)" }} />
   </div>
 );
 
 const TYPE_LABELS: Record<string, string> = {
-  ASSIST:        "🔊 Escute e selecione a resposta certa",
-  SELECT:        "❓ Escolha a resposta certa",
-  TRANSLATE:     "🌍 Traduza para o inglês",
-  FILL_IN_BLANK: "✏️ Complete a frase",
+  ASSIST:          "🔊 Escute e selecione a resposta certa",
+  SELECT:          "❓ Escolha a resposta certa",
+  TRANSLATE:       "🌍 Traduza para o inglês",
+  FILL_IN_BLANK:   "✏️ Complete a frase",
   LISTEN_AND_TYPE: "👂 Ouça e escreva",
-  MATCH:         "🔗 Conecte os pares",
-  SPEAK:         "🎙️ Fale em voz alta",
+  MATCH:           "🔗 Conecte os pares",
+  SPEAK:           "🎙️ Fale em voz alta",
 };
 
 export const Quiz = ({
-  initialPercentage,
-  initialHearts,
-  initialLessonId,
-  initialLessonChallenges,
-  userSubscription,
-  currentStreak = 0,
+  initialPercentage, initialHearts, initialLessonId,
+  initialLessonChallenges, userSubscription, currentStreak = 0,
 }: QuizProps) => {
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
   const [incorrectAudio, _i, incorrectControls] = useAudio({ src: "/incorrect.wav" });
@@ -97,13 +86,10 @@ export const Quiz = ({
   const [lessonId] = useState(initialLessonId);
   const [hearts, setHearts] = useState(initialHearts);
   const [percentage, setPercentage] = useState(() => initialPercentage === 100 ? 0 : initialPercentage);
-
-  const sorted = [...initialLessonChallenges].sort((a, b) => a.order - b.order);
+  const shuffle = <T,>(arr: T[]): T[] => arr.map((v) => ({ v, r: Math.random() })).sort((a, b) => a.r - b.r).map(({ v }) => v);
+  const sorted = [...initialLessonChallenges].sort((a, b) => a.order - b.order).map((c) => ({ ...c, challengeOptions: shuffle(c.challengeOptions) }));
   const [challenges] = useState(sorted);
-  const [activeIndex, setActiveIndex] = useState(() => {
-    const i = challenges.findIndex((c) => !c.completed);
-    return i === -1 ? 0 : i;
-  });
+  const [activeIndex, setActiveIndex] = useState(() => { const i = challenges.findIndex((c) => !c.completed); return i === -1 ? 0 : i; });
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"none" | "wrong" | "correct">("none");
 
@@ -112,7 +98,14 @@ export const Quiz = ({
   const type = challenge?.type as string;
   const isTextInput = TEXT_INPUT_TYPES.includes(type);
 
-  // ── Finish screen ─────────────────────────────────────────────
+  // Correct answer text for footer
+  const correctAnswer = options.find((o) => o.correct)?.text;
+
+  // For ASSIST: replace ____ with correct answer for speech
+  const assistSpeakText = type === "ASSIST"
+    ? (challenge?.question ?? "").replace(/_{2,}/g, correctAnswer ?? "").replace(/\s*\([^)]*\)\s*/g, " ").trim()
+    : undefined;
+
   if (!challenge) {
     return (
       <div className="relative flex min-h-screen flex-col items-center justify-center"
@@ -137,7 +130,6 @@ export const Quiz = ({
     );
   }
 
-  // ── Handlers ──────────────────────────────────────────────────
   const onNext = () => setActiveIndex((c) => c + 1);
   const onSelect = (id: number) => { if (status !== "none") return; setSelectedOption(id); };
 
@@ -146,8 +138,7 @@ export const Quiz = ({
       startTransition(() => {
         upsertChallengeProgress(challenge.id).then((res) => {
           if (res?.error === "hearts") { openHeartsModal(); return; }
-          void correctControls.play();
-          setStatus("correct");
+          void correctControls.play(); setStatus("correct");
           setPercentage((p) => p + 100 / challenges.length);
           if (initialPercentage === 100) setHearts((h) => Math.min(h + 1, MAX_HEARTS));
         }).catch(() => toast.error("Something went wrong."));
@@ -156,8 +147,7 @@ export const Quiz = ({
       startTransition(() => {
         reduceHearts(challenge.id).then((res) => {
           if (res?.error === "hearts") { openHeartsModal(); return; }
-          void incorrectControls.play();
-          setStatus("wrong");
+          void incorrectControls.play(); setStatus("wrong");
           if (!res?.error) setHearts((h) => Math.max(h - 1, 0));
         }).catch(() => toast.error("Something went wrong."));
       });
@@ -165,9 +155,18 @@ export const Quiz = ({
   };
 
   const onContinue = () => {
-    if (status === "wrong") { setStatus("none"); setSelectedOption(undefined); return; }
+    if (status === "wrong")   { setStatus("none"); setSelectedOption(undefined); return; }
     if (status === "correct") { onNext(); setStatus("none"); setSelectedOption(undefined); return; }
-    if (isTextInput) { textSubmitRef.current?.(); return; }
+    if (isTextInput)          { textSubmitRef.current?.(); return; }
+    if (type === "MATCH") {
+      if (!selectedOption) return;
+      if (selectedOption === -1) {
+        startTransition(() => { reduceHearts(challenge.id).then((res) => { if (res?.error === "hearts") { openHeartsModal(); return; } void incorrectControls.play(); setStatus("wrong"); if (!res?.error) setHearts((h) => Math.max(h - 1, 0)); }).catch(() => toast.error("Something went wrong.")); });
+      } else {
+        startTransition(() => { upsertChallengeProgress(challenge.id).then((res) => { if (res?.error === "hearts") { openHeartsModal(); return; } void correctControls.play(); setStatus("correct"); setPercentage((p) => p + 100 / challenges.length); if (initialPercentage === 100) setHearts((h) => Math.min(h + 1, MAX_HEARTS)); }).catch(() => toast.error("Something went wrong.")); });
+      }
+      return;
+    }
     if (!selectedOption) return;
     const correctOpt = options.find((o) => o.correct);
     if (!correctOpt) return;
@@ -175,8 +174,7 @@ export const Quiz = ({
       startTransition(() => {
         upsertChallengeProgress(challenge.id).then((res) => {
           if (res?.error === "hearts") { openHeartsModal(); return; }
-          void correctControls.play();
-          setStatus("correct");
+          void correctControls.play(); setStatus("correct");
           setPercentage((p) => p + 100 / challenges.length);
           if (initialPercentage === 100) setHearts((h) => Math.min(h + 1, MAX_HEARTS));
         }).catch(() => toast.error("Something went wrong."));
@@ -185,18 +183,19 @@ export const Quiz = ({
       startTransition(() => {
         reduceHearts(challenge.id).then((res) => {
           if (res?.error === "hearts") { openHeartsModal(); return; }
-          void incorrectControls.play();
-          setStatus("wrong");
+          void incorrectControls.play(); setStatus("wrong");
           if (!res?.error) setHearts((h) => Math.max(h - 1, 0));
         }).catch(() => toast.error("Something went wrong."));
       });
     }
   };
 
-  const isFooterDisabled = pending || (status === "none" && !selectedOption);
-  const charSeedId = challenge.id;
+  const isFooterDisabled = pending || (status === "none" && !selectedOption && type !== "MATCH");
   const typeLabel = TYPE_LABELS[type] ?? "Escolha a resposta certa";
-  const showCharacter = type !== "VIDEO" && type !== "FILL_IN_BLANK";
+
+  // Which types show the shared CharacterBubble
+  // FILL_IN_BLANK has its own built-in, VIDEO and SPEAK have their own layout
+  const showCharacterBubble = type !== "VIDEO" && type !== "FILL_IN_BLANK" && type !== "SPEAK";
 
   return (
     <div className="relative flex min-h-screen flex-col"
@@ -209,41 +208,46 @@ export const Quiz = ({
       </div>
 
       <div className="relative z-10 flex flex-1 items-center justify-center px-4 pb-48 pt-6">
-        <div className="flex w-full max-w-[600px] flex-col gap-y-6">
+        <div className="flex w-full max-w-[600px] flex-col gap-y-5">
 
           {/* Type label */}
           <p className="text-center text-xs font-bold uppercase tracking-widest text-indigo-400 lg:text-start">
             {typeLabel}
           </p>
 
-          {/* Character bubble — all types except VIDEO and FILL_IN_BLANK (which has its own) */}
-          {showCharacter && (
+          {/* Shared character bubble */}
+          {showCharacterBubble && (
             <CharacterBubble
               question={challenge.question}
-              seedId={charSeedId}
+              seedId={challenge.id}
               autoSpeak={type === "ASSIST"}
+              showSpeakButton={type === "ASSIST"}
+              speakText={assistSpeakText}
             />
           )}
 
           <div>
-            {type === "ASSIST" && (
-              <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
-            )}
-
-            {type === "SELECT" && (
-              <Challenge options={options} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} type={type} />
+            {(type === "ASSIST" || type === "SELECT") && (
+              <Challenge options={options} onSelect={onSelect} status={status}
+                selectedOption={selectedOption} disabled={pending} type={type} />
             )}
 
             {type === "TRANSLATE" && (
-              <Translate key={challenge.id} challenge={challenge} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
+              <Translate key={challenge.id} challenge={challenge} onSelect={onSelect}
+                status={status} selectedOption={selectedOption} disabled={pending}
+                onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
             )}
 
             {type === "FILL_IN_BLANK" && (
-              <FillInBlank key={challenge.id} challenge={challenge} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
+              <FillInBlank key={challenge.id} challenge={challenge} onSelect={onSelect}
+                status={status} selectedOption={selectedOption} disabled={pending}
+                onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
             )}
 
             {type === "LISTEN_AND_TYPE" && (
-              <ListenAndType key={challenge.id} challenge={challenge} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
+              <ListenAndType key={challenge.id} challenge={challenge} onSelect={onSelect}
+                status={status} selectedOption={selectedOption} disabled={pending}
+                onResult={handleTextResult} registerSubmit={(fn) => { textSubmitRef.current = fn; }} />
             )}
 
             {type === "MATCH" && (
@@ -255,13 +259,19 @@ export const Quiz = ({
             )}
 
             {type === "VIDEO" && (
-              <Video challenge={challenge} onSelect={onSelect} status={status} selectedOption={selectedOption} disabled={pending} />
+              <Video challenge={challenge} onSelect={onSelect} status={status}
+                selectedOption={selectedOption} disabled={pending} />
             )}
           </div>
         </div>
       </div>
 
-      <Footer disabled={isFooterDisabled} status={status} onCheck={onContinue} />
+      <Footer
+        disabled={isFooterDisabled}
+        status={status}
+        onCheck={onContinue}
+        correctAnswer={status === "wrong" ? correctAnswer : undefined}
+      />
     </div>
   );
 };

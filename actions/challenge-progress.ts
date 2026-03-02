@@ -94,8 +94,6 @@ function triggerLessonGenerationIfNeeded(
       const currentBand = cefrBand(cefrLevel);
       const unitId = await getOrCreateActiveUnit(userId, courseId, currentBand);
       await generateLessons(userId, unitId);
-
-      revalidatePath("/learn");
       console.log(`[lesson-generation] Generated 4 lessons for user ${userId}`);
     } catch (err) {
       console.error("[lesson-generation] background error:", err);

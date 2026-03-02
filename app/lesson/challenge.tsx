@@ -29,19 +29,12 @@ export const Challenge = ({ options, onSelect, status, selectedOption, disabled,
         const borderColor = isSelected && status === "correct" ? "#4ade80" : isSelected && status === "wrong" ? "#f87171" : isSelected ? "#fff" : col.border;
         const bgColor = isSelected && status === "correct" ? "rgba(74,222,128,0.12)" : isSelected && status === "wrong" ? "rgba(248,113,113,0.12)" : isSelected ? "rgba(255,255,255,0.1)" : col.bg;
         const textColor = isSelected && status === "correct" ? "#86efac" : isSelected && status === "wrong" ? "#fca5a5" : isSelected ? "#fff" : col.text;
-
         return (
-          <button
-            key={option.id}
-            onClick={() => {
-              if (disabled) return;
-              onSelect(option.id);
-              if (type === "SELECT" || type === "ASSIST") speakEN(option.text);
-            }}
+          <button key={option.id}
+            onClick={() => { if (disabled) return; onSelect(option.id); if (type === "SELECT" || type === "ASSIST") speakEN(option.text); }}
             disabled={disabled}
             className={cn("relative flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left font-bold transition-all duration-150 active:scale-[0.98]", !isSelected && status !== "none" && "opacity-40", disabled && "cursor-not-allowed")}
-            style={{ borderColor, backgroundColor: bgColor, color: textColor, boxShadow: isSelected ? `0 0 18px ${status === "correct" ? "rgba(74,222,128,0.4)" : status === "wrong" ? "rgba(248,113,113,0.4)" : "rgba(255,255,255,0.2)"}` : `0 0 8px ${col.glow}` }}
-          >
+            style={{ borderColor, backgroundColor: bgColor, color: textColor, boxShadow: isSelected ? `0 0 18px ${status === "correct" ? "rgba(74,222,128,0.4)" : status === "wrong" ? "rgba(248,113,113,0.4)" : "rgba(255,255,255,0.2)"}` : `0 0 8px ${col.glow}` }}>
             <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-extrabold"
               style={{ border: `1.5px solid ${borderColor}`, backgroundColor: isSelected ? borderColor : "transparent", color: isSelected ? "#0f172a" : textColor }}>
               {i + 1}

@@ -17,13 +17,6 @@ Não seria o caso de pegar a lógica do TRANSLATE?! O challenge 29 deu bom!
 2026-02-20 - PAREI na criação da página para criação de novas lições dinâmicas. Lições que serão 
 geradas com base no nível do aluno pasta deletada para new-lesson-old 
 
-PERSONAGENS / BONEQUINHOS nas perguntas: 
-
--> Menino da maçã mágica
--> O pai do menino
--> Homem que nasceu para ser pobre
--> O rei
-
 
 -> route Bulk para importar um "curso completo" gerado por ainda não finalizado. Esta funcionalidade
 irá carregar um lote de desafios e opções de desafio 
@@ -71,3 +64,29 @@ recebe o ofensivo de ouro.
 
 -> Todos os tipos duolingo criados. 
 
+
+
+
+BACKLOG ASTRONAUTA DO FUTURO
+
+Nós queremos doutrinar o seu filho! 🔥 
+
+Exemplos de questões: Pai e Mãe. Reforço de valores cristãos e hétero normatividade. Libertarianismo e bitcoin.
+
+
+
+- Alinhar lógica aplicação e prompt Antrophic para Voice nos tipos SELECT. Opções sempre em inglês para Voice correto; uma opção seria outro tipo de desafio para opções em português. Ver lógica parênteses
+- Reduzir o tamanho das frases no tipo TRANSLATE
+- colocar destaque no tempo de conclusão da lição se acerto 100% e tempo menor 5 segundos por desafio. 
+- Ajustar as vidas para 5 por dia free, mais 3 por propaganda (quanto é uma propaganda)
+- Ajustar missões diárias na tela de Quest para mais XP. Algoritmo para controlar conclusão das missões
+- Controlar se usuário é free ou pago. Pensar na lógica do app sobre como funciona a estrutura/geração do curso para Usuário free e usuário pago
+- Ajustar tela marketing inicial
+- Prompt retirar questões Woke, pedir questões libertárias, conservadoras
+- Criar área de admim para parametrizar contantes, hoje hardcodeds como número de lições concluídas 100% até novo micro nível, número de novas lições criadas na chamada a API, TEXTO PROMPT API, etc
+- CRIAR possibilidade de mudar tema completamente
+- E-mails de lembrete! Push e ícone PWA
+- Pagamentos mensais e propagandas
+- Site oficial e redes sociais
+- Persona e estratégia de marketing conservadores. Propósito: resolvi implementar depois que minha esposa... Meter o cacete no Duolingo! Se é para tela, que seja para sede de Saber!
+- Área de desenhos animados curados conservadores: tutle twins, etc
